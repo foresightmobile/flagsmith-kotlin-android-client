@@ -1,5 +1,6 @@
 package com.flagsmith.response
 
-data class ResponseTraits(
+data class ResponseIdentity(
+    val flags: ArrayList<ResponseFlag>,
     val responseTraits: ArrayList<ResponseTrait>
 )

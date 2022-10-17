@@ -8,18 +8,18 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
-import com.flagsmith.response.Trait
+import com.flagsmith.response.ResponseTrait
 import com.flagmsith.R
 
 
 interface TraitPickerSelect {
-    fun click( mSelect: Trait?)
+    fun click( mSelect: ResponseTrait?)
 }
 
 
 class TraitAdapter(
     private val context: Context,
-    private val resultList: ArrayList<Trait>,
+    private val resultList: ArrayList<ResponseTrait>,
     var contactPickerSelect: TraitPickerSelect
 ) :
     RecyclerView.Adapter<TraitAdapter.MyViewHolder>() {

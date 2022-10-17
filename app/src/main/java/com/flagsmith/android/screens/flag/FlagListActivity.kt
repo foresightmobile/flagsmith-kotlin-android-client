@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.flagsmith.builder.Flagsmith
 import com.flagsmith.interfaces.IFlagArrayResult
-import com.flagsmith.response.ResponseFlagElement
+import com.flagsmith.response.ResponseFlag
 import com.flagmsith.R
 import com.flagsmith.android.adapter.FlagAdapter
 import com.flagsmith.android.adapter.FlagPickerSelect
@@ -70,7 +70,7 @@ class FlagListActivity : AppCompatActivity() {
 
         //listener
         flagBuilder.getFeatureFlags(   object : IFlagArrayResult{
-            override fun success(list: ArrayList<ResponseFlagElement>) {
+            override fun success(list: ArrayList<ResponseFlag>) {
 
                 Helper.callViewInsideThread( activity) {
                     //progress
@@ -104,12 +104,12 @@ class FlagListActivity : AppCompatActivity() {
     }
 
 
-    private fun createAdapterFlag(list: ArrayList<ResponseFlagElement>) {
+    private fun createAdapterFlag(list: ArrayList<ResponseFlag>) {
         val manager = LinearLayoutManager(context )
         manager.orientation = LinearLayoutManager.VERTICAL
         rv_flags.layoutManager = manager
         val customAdapter = FlagAdapter(  context , list, object : FlagPickerSelect{
-            override fun click(favContact: ResponseFlagElement?) {
+            override fun click(favContact: ResponseFlag?) {
 
             }
         })

@@ -3,18 +3,18 @@ package com.flagsmith.api
 
 
 import com.flagsmith.builder.Flagsmith
-import com.flagsmith.interfaces.IIdentity
+import com.flagsmith.interfaces.IIdentityResult
 import com.flagsmith.response.ResponseTraitUpdate
 import com.flagsmith.interfaces.INetworkListener
 import com.flagsmith.android.network.NetworkFlag
 import com.flagsmith.android.network.ApiManager
-import com.flagsmith.interfaces.ITraitUpdate
+import com.flagsmith.response.ResponseIdentity
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-class Identity(builder: Flagsmith, key: String, value: String, finish: ITraitUpdate) {
+class Identity(builder: Flagsmith, key: String, value: String, finish: IIdentityResult) {
 
-    var finish: IIdentity
+    var finish: IIdentityResult
     var key: String
     var value: String
     var builder: Flagsmith
@@ -80,8 +80,8 @@ class Identity(builder: Flagsmith, key: String, value: String, finish: ITraitUpd
     fun _parse(json: String) {
         try {
             val gson = Gson()
-            val type = object : TypeToken<ResponseTraitUpdate>() {}.type
-            val responseFromJson: ResponseTraitUpdate = gson.fromJson(json, type)
+            val type = object : TypeToken<ResponseIdentity>() {}.type
+            val responseFromJson: ResponseIdentity = gson.fromJson(json, type)
             println("parse() - responseFromJson: $responseFromJson")
 
             //finish

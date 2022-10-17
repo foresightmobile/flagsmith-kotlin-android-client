@@ -60,7 +60,7 @@ class Trait(builder: Flagsmith, finish: ITraitArrayResult) {
             println("parse() - responseFromJson: $responseFromJson")
 
             //finish
-            finish.success(responseFromJson.traits)
+            finish.success(responseFromJson.responseTraits)
         } catch (e: Exception) {
             finish.failed("exception: $e")
         }

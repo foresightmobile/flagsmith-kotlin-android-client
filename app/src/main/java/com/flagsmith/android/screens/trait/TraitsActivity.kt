@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.flagsmith.builder.Flagsmith
 import com.flagsmith.interfaces.ITraitArrayResult
-import com.flagsmith.response.Trait
+import com.flagsmith.response.ResponseTrait
 import com.flagmsith.R
 import com.flagsmith.android.adapter.TraitAdapter
 import com.flagsmith.android.adapter.TraitPickerSelect
@@ -80,7 +80,7 @@ class TraitsActivity : AppCompatActivity() {
     private fun getAllData() {
         prgTraits.visibility = View.VISIBLE
         flagBuilder.getTrait(object : ITraitArrayResult {
-            override fun success(list: ArrayList<Trait>) {
+            override fun success(list: ArrayList<ResponseTrait>) {
 
 
                 Helper.callViewInsideThread(activity) {
@@ -116,12 +116,12 @@ class TraitsActivity : AppCompatActivity() {
     }
 
 
-    private fun createAdapterFlag(list: ArrayList<Trait>) {
+    private fun createAdapterFlag(list: ArrayList<ResponseTrait>) {
         val manager = LinearLayoutManager(context)
         manager.orientation = LinearLayoutManager.VERTICAL
         rvTraits.layoutManager = manager
         val customAdapter = TraitAdapter(context, list, object : TraitPickerSelect {
-            override fun click(mSelect: Trait?) {
+            override fun click(mSelect: ResponseTrait?) {
 
             }
         })

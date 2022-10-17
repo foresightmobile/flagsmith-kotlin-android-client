@@ -2,6 +2,8 @@ package com.flagsmith.builder
 
 import com.flagsmith.api.*
 import com.flagsmith.interfaces.*
+import com.flagsmith.response.ResponseFlag
+import com.flagsmith.response.ResponseTraitUpdate
 
 class Flagsmith private constructor(
     val tokenApiKey: String?,
@@ -15,7 +17,7 @@ class Flagsmith private constructor(
 
 
     fun getFeatureFlags(finish: IFlagArrayResult) {
-        Flag(this, finish)
+        GetFlags(this, finish)
     }
 
     fun hasFeatureFlag(searchFeatureId: String, finish: IFlagSingle) {
@@ -31,8 +33,8 @@ class Flagsmith private constructor(
         Trait(this, finish)
     }
 
-    fun setTrait(key: String, value: String, finish: ITraitUpdate) {
-        Identity(this, key, value, finish)
+    fun setTrait(key: String, value: String, finish: kotlin.Result<ResponseTraitUpdate>) {
+        // Identity(this, key, value, finish)
     }
 //
 //    fun getIdentity (finish: IIdentity){

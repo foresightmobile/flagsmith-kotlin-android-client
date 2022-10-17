@@ -8,6 +8,7 @@ import android.widget.Button
 import com.flagmsith.R
 import com.flagsmith.android.android.screens.flag.FeatureSearchActivity
 import com.flagsmith.android.android.screens.trait.TraitsActivity
+import com.flagsmith.android.screens.flag.FlagListActivity
 
 class ChoosePageActivity : AppCompatActivity() {
 

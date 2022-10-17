@@ -2,15 +2,15 @@ package com.flagsmith.api
 
 
 import com.flagsmith.builder.Flagsmith
-import com.flagsmith.interfaces.IFlagArrayResult
-import com.flagsmith.response.ResponseFlagElement
+import com.flagsmith.response.ResponseFlag
 import com.flagsmith.interfaces.INetworkListener
 import com.flagsmith.android.network.NetworkFlag
 import com.flagsmith.android.network.ApiManager
+import com.flagsmith.interfaces.IFlagArrayResult
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-class Flag(builder: Flagsmith, finish: IFlagArrayResult) {
+class GetFlags(builder: Flagsmith, finish: IFlagArrayResult) {
 
 
     var finish: IFlagArrayResult
@@ -27,8 +27,7 @@ class Flag(builder: Flagsmith, finish: IFlagArrayResult) {
     private fun startAPI() {
         val url = ApiManager.BaseUrl.Url + "flags/"
 
-        ApiManager(url, NetworkFlag.getNetworkHeader(builder), object :
-            INetworkListener {
+        ApiManager(url, NetworkFlag.getNetworkHeader(builder), object : INetworkListener {
             override fun success(response: String?) {
                 _parse(response!!, finish)
             }
@@ -44,8 +43,8 @@ class Flag(builder: Flagsmith, finish: IFlagArrayResult) {
     fun _parse(json: String, finish: IFlagArrayResult) {
         try {
             val gson = Gson()
-            val type = object : TypeToken<ArrayList<ResponseFlagElement>>() {}.type
-            val responseFromJson: ArrayList<ResponseFlagElement> = gson.fromJson(json, type)
+            val type = object : TypeToken<ArrayList<ResponseFlag>>() {}.type
+            val responseFromJson: ArrayList<ResponseFlag> = gson.fromJson(json, type)
             println("parse() - responseFromJson: $responseFromJson")
 
             //finish

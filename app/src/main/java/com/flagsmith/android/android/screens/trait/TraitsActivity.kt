@@ -15,7 +15,7 @@ import com.flagsmith.android.adapter.TraitAdapter
 import com.flagsmith.android.adapter.TraitPickerSelect
 import com.flagsmith.builder.Flagsmith
 import com.flagsmith.interfaces.ITraitArrayResult
-import com.flagsmith.response.Trait
+import com.flagsmith.response.ResponseTrait
 import com.flagsmith.android.android.toolbar.ToolbarSimple
 import com.flagmsith.R
 import com.flagsmith.android.helper.Helper
@@ -78,7 +78,7 @@ class TraitsActivity : AppCompatActivity() {
         prg_traits.visibility = View.VISIBLE
 
         flagBuilder.getTrait(object : ITraitArrayResult {
-            override fun success(list: ArrayList<Trait>) {
+            override fun success(list: ArrayList<ResponseTrait>) {
                 Helper.callViewInsideThread(activity) {
 
                     prg_traits.visibility = View.GONE
@@ -105,12 +105,12 @@ class TraitsActivity : AppCompatActivity() {
     }
 
 
-    private fun createAdapterFlag(list: ArrayList<Trait>) {
+    private fun createAdapterFlag(list: ArrayList<ResponseTrait>) {
         val manager = LinearLayoutManager(context)
         manager.orientation = LinearLayoutManager.VERTICAL
         rv_traits.layoutManager = manager
         val customAdapter = TraitAdapter(context, list, object : TraitPickerSelect {
-            override fun click(mSelect: Trait?) {
+            override fun click(mSelect: ResponseTrait?) {
             }
         })
         rv_traits.adapter = customAdapter
