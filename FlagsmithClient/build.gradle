@@ -45,8 +45,10 @@ dependencies {
     // This dependency is exported to consumers, that is to say found on their compile classpath.
     api 'org.apache.commons:commons-math3:3.6.1'
 
-    implementation("com.squareup.okhttp3:okhttp:4.2.0")
-    implementation 'com.google.code.gson:gson:2.8.2'
+    implementation("com.squareup.okhttp3:okhttp:4.9.0")
+    implementation 'com.google.code.gson:gson:2.8.9'
+
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.1'
 }
 
 afterEvaluate {

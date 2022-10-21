@@ -40,8 +40,8 @@ class ApiManager {
         this.url = url
         this.headers = headers
         this.iFinish = iFinish
-        println("OkhttpNetwork - start url: $url")
-        println("OkhttpNetwork - param:  $passBody")
+        // println("OkhttpNetwork - start url: $url")
+        // println("OkhttpNetwork - param:  $passBody")
         //start
         startApi()
     }

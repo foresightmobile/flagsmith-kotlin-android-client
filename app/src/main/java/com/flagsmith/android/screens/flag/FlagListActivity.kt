@@ -45,6 +45,7 @@ class FlagListActivity : AppCompatActivity() {
         initBuilder()
         setupToolbar()
         checkWithHasFeatureFlag()
+        checkWithGetValueForFeature()
     }
 
     private fun setupToolbar() {
@@ -61,11 +62,25 @@ class FlagListActivity : AppCompatActivity() {
     }
 
     private fun checkWithHasFeatureFlag() {
+        println("************************* checkWithHasFeatureFlag *************************")
         flagBuilder.hasFeatureFlag("no-value") {
             println("hasFeatureFlag 'no-value' $it")
         }
         flagBuilder.hasFeatureFlag("not-found") {
             println("hasFeatureFlag 'not-found' $it")
+        }
+    }
+
+    private fun checkWithGetValueForFeature() {
+        println("************************* checkWithGetValueForFeature *************************")
+        flagBuilder.getValueForFeature("no-value") {
+            println("getValueForFeature 'no-value' $it")
+        }
+        flagBuilder.getValueForFeature("not-found") {
+            println("getValueForFeature 'not-found' $it")
+        }
+        flagBuilder.getValueForFeature("with-value") {
+            println("getValueForFeature 'with-value' $it")
         }
     }
 
