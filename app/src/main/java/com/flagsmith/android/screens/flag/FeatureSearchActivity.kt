@@ -80,7 +80,8 @@ class FeatureSearchActivity : AppCompatActivity() {
         //keybaord
         Helper.keyboardHidden( activity )
 
-        flagBuilder.getFeatureFlags(searchText)
+        //TODO: It
+        // flagBuilder.getFeatureFlags(searchText)
     }
 
 

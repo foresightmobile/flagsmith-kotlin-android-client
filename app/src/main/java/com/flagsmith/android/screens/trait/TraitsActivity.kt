@@ -17,8 +17,6 @@ import com.flagsmith.response.ResponseTrait
 import com.flagmsith.R
 import com.flagsmith.android.adapter.TraitAdapter
 import com.flagsmith.android.adapter.TraitPickerSelect
-
-import com.flagsmith.android.android.screens.trait.TraitCreateActivity
 import com.flagsmith.android.helper.Helper
 import com.flagsmith.android.toolbar.ToolbarSimple
 

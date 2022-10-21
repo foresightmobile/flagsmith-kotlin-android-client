@@ -2,7 +2,7 @@ package com.flagsmith.api
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.flagsmith.android.network.AnalyticsTrackFlagAPi
+import com.flagsmith.android.network.AnalyticsTrackFlagAPI
 import com.flagsmith.builder.Flagsmith
 import com.flagsmith.interfaces.IEventUpdate
 import org.json.JSONException
@@ -42,10 +42,10 @@ class FlagsmithAnalytics {
             AnalyticsCache.setMap( context,   events )
 
             //call api
-            AnalyticsTrackFlagAPi(builder, events, object : IEventUpdate{
+            AnalyticsTrackFlagAPI(builder, events, object : IEventUpdate{
                 override fun success() {
                 }
-                override fun failed(str: String) {
+                override fun failed(exception: Exception) {
                 }
             })
         }

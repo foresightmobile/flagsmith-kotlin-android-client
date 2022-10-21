@@ -10,12 +10,10 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.flagsmith.builder.Flagsmith
-import com.flagsmith.interfaces.ITraitUpdate
-import com.flagsmith.response.ResponseTraitUpdate
 import com.flagmsith.R
 
 import com.flagsmith.android.helper.Helper
-
+import com.flagsmith.response.ResponseTraitUpdate
 
 
 class TraitCreateActivity : AppCompatActivity() {
@@ -93,32 +91,42 @@ class TraitCreateActivity : AppCompatActivity() {
         //progress start
         prg_pageTraitCreate.visibility = View.VISIBLE
 
+        flagBuilder.setTrait(key, value) { result ->
+            Helper.callViewInsideThread(activity) {
+                prg_pageTraitCreate.visibility = View.GONE
+                result.fold(
+                    onSuccess = { finishClassAfterSeeToast() },
+                    onFailure = { t -> Toast.makeText(activity, t.localizedMessage , Toast.LENGTH_SHORT).show() }
+                )
+            }
+        }
+
         //listener
-        flagBuilder.createTrait(  key, value, object  : ITraitUpdate {
-            override fun success(response: ResponseTraitUpdate) {
-
-
-                Helper.callViewInsideThread( activity) {
-                    //progress end
-                    prg_pageTraitCreate.visibility = View.GONE
-
-                    finishClassAfterSeeToast()
-                }
-
-            }
-
-            override fun failed(str: String) {
-
-
-                Helper.callViewInsideThread( activity) {
-                    //progress end
-                    prg_pageTraitCreate.visibility = View.GONE
-
-                    Toast.makeText(activity, str , Toast.LENGTH_SHORT).show()
-                }
-
-            }
-        })
+//        flagBuilder.createTrait(  key, value, object  : ITraitUpdate {
+//            override fun success(response: ResponseTraitUpdate) {
+//
+//
+//                Helper.callViewInsideThread( activity) {
+//                    //progress end
+//                    prg_pageTraitCreate.visibility = View.GONE
+//
+//                    finishClassAfterSeeToast()
+//                }
+//
+//            }
+//
+//            override fun failed(str: String) {
+//
+//
+//                Helper.callViewInsideThread( activity) {
+//                    //progress end
+//                    prg_pageTraitCreate.visibility = View.GONE
+//
+//                    Toast.makeText(activity, str , Toast.LENGTH_SHORT).show()
+//                }
+//
+//            }
+//        })
     }
 
     private fun finishClassAfterSeeToast() {

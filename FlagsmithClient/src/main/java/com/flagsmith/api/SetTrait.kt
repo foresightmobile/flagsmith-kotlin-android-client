@@ -1,10 +1,7 @@
 package com.flagsmith.api
 
-
-
 import com.flagsmith.builder.Flagsmith
 import com.flagsmith.interfaces.IIdentityResult
-import com.flagsmith.response.ResponseTraitUpdate
 import com.flagsmith.interfaces.INetworkListener
 import com.flagsmith.android.network.NetworkFlag
 import com.flagsmith.android.network.ApiManager
@@ -12,15 +9,13 @@ import com.flagsmith.response.ResponseIdentity
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-class Identity(builder: Flagsmith, key: String, value: String, finish: IIdentityResult) {
-
+class SetTrait(builder: Flagsmith, key: String, value: String, finish: IIdentityResult) {
     var finish: IIdentityResult
     var key: String
     var value: String
     var builder: Flagsmith
 
     init {
-
         this.finish = finish
         this.key = key
         this.value = value
@@ -29,15 +24,13 @@ class Identity(builder: Flagsmith, key: String, value: String, finish: IIdentity
         if (validateData()) {
             startAPI()
         }
-
-
     }
 
     private fun validateData(): Boolean {
         val result = true
         //check identifier null
         if (builder.identity.isNullOrEmpty()) {
-            finish.failed("User Identifier must to set in class 'FlagsmithBuilder' first")
+            finish.failed(kotlin.IllegalStateException("User Identifier must to set in class 'FlagsmithBuilder' first"))
             return false
         }
 
@@ -46,7 +39,6 @@ class Identity(builder: Flagsmith, key: String, value: String, finish: IIdentity
 
     private fun startAPI() {
         val url = ApiManager.BaseUrl.Url + "traits/"
-
 
         val header = NetworkFlag.getNetworkHeader(builder)
 
@@ -59,8 +51,8 @@ class Identity(builder: Flagsmith, key: String, value: String, finish: IIdentity
                     _parse(response!!)
                 }
 
-                override fun failed(error: String?) {
-                    finish.failed(error!!)
+                override fun failed(exception: Exception) {
+                    finish.failed(exception)
                 }
 
             })
@@ -87,7 +79,7 @@ class Identity(builder: Flagsmith, key: String, value: String, finish: IIdentity
             //finish
             finish.success(responseFromJson)
         } catch (e: Exception) {
-            finish.failed("exception: $e")
+            finish.failed(e)
         }
     }
 

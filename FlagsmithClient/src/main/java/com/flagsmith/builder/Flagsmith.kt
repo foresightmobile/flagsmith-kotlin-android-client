@@ -2,8 +2,7 @@ package com.flagsmith.builder
 
 import com.flagsmith.api.*
 import com.flagsmith.interfaces.*
-import com.flagsmith.response.ResponseFlag
-import com.flagsmith.response.ResponseTraitUpdate
+import com.flagsmith.response.ResponseIdentity
 
 class Flagsmith private constructor(
     val tokenApiKey: String?,
@@ -33,8 +32,17 @@ class Flagsmith private constructor(
         Trait(this, finish)
     }
 
-    fun setTrait(key: String, value: String, finish: kotlin.Result<ResponseTraitUpdate>) {
-        // Identity(this, key, value, finish)
+    fun setTrait(key: String, value: String, result:(Result<ResponseIdentity>) -> Unit) {
+        SetTrait(this, key, value, object : IIdentityResult {
+                override fun success(response: ResponseIdentity) {
+                    result(Result.success(response))
+                }
+
+                override fun failed(e: Exception) {
+                    result(Result.failure(e))
+                }
+            }
+        )
     }
 //
 //    fun getIdentity (finish: IIdentity){

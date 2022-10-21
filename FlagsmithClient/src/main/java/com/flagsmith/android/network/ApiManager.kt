@@ -9,8 +9,6 @@ import java.util.concurrent.TimeUnit
 
 
 class ApiManager {
-
-
     object BaseUrl{
         const val Url ="https://edge.api.flagsmith.com/api/v1/"
     }
@@ -28,7 +26,7 @@ class ApiManager {
 
     //status of request
     var request_status = false
-    var request_failed_msg: String? = null
+    var requestFailedException: Exception? = null
     var isCompleteBefore //to called interface finish, to avoid call two times
             = false
     var headers: HashMap<String, String>?
@@ -82,14 +80,13 @@ class ApiManager {
     }
 
     private fun finishSuccess() {
-
         //check called before
         if (isCompleteBefore) return
+
         if (iFinish != null) {
             iFinish!!.success(res)
         }
         isCompleteBefore = true
-
     }
 
     private fun finishFailed() {
@@ -98,7 +95,7 @@ class ApiManager {
             return
         }
         if (iFinish != null) {
-            iFinish!!.failed(request_failed_msg)
+            iFinish!!.failed(requestFailedException ?: IllegalStateException("Request failed for unknown reason"))
         }
         isCompleteBefore = true
     }
@@ -110,10 +107,10 @@ class ApiManager {
             request_status = true
         } catch (es: SecurityException) {
             request_status = false
-            request_failed_msg = es.toString()
+            requestFailedException = es
             return
         } catch (e: Exception) {
-            request_failed_msg = e.toString()
+            requestFailedException = e
             request_status = false
             return
         }
@@ -195,9 +192,7 @@ class ApiManager {
         request = requestBuilder!!.build()
     }
 
-
     private fun addHeaders() {
-
         requestBuilder!!.header("Content-Type", "application/json")
 
         if (headers == null) return
@@ -206,7 +201,6 @@ class ApiManager {
             requestBuilder!!.header(it.key, it.value)
         }
     }
-
 
     private fun clientWithRetry(): OkHttpClient {
         val client = OkHttpClient.Builder()

@@ -49,7 +49,6 @@ class ChoosePageActivity : AppCompatActivity() {
             val i = Intent( activity, TraitsActivity::class.java)
             i.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(i)
-
         }
     }
 

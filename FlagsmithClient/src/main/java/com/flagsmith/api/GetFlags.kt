@@ -32,8 +32,8 @@ class GetFlags(builder: Flagsmith, finish: IFlagArrayResult) {
                 _parse(response!!, finish)
             }
 
-            override fun failed(error: String?) {
-                finish.failed(error!!)
+            override fun failed(exception: Exception) {
+                finish.failed(exception.localizedMessage ?: "Error getting flags")
             }
 
         })

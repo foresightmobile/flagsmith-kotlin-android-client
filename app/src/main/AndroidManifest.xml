@@ -25,6 +25,11 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+        <activity android:name="com.flag.android.screens.flag.FeatureSearchActivity"/>
+        <activity android:name="com.flagsmith.android.screens.trait.TraitsActivity"/>
+        <activity android:name="com.flagsmith.android.screens.flag.FlagListActivity"/>
+        <activity android:name="com.flagsmith.android.screens.trait.TraitCreateActivity"/>
+
     </application>
 
 </manifest>
