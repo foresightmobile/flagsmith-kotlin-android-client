@@ -19,7 +19,7 @@ interface FlagPickerSelect {
 
 class FlagAdapter(
     private val context: Context,
-    private val resultList: ArrayList<ResponseFlag>,
+    private val resultList: List<ResponseFlag>,
     private var contactPickerSelect: FlagPickerSelect
 ) :
     RecyclerView.Adapter<FlagAdapter.MyViewHolder>() {

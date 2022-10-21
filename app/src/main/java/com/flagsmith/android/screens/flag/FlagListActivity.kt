@@ -71,47 +71,34 @@ class FlagListActivity : AppCompatActivity() {
     }
 
     private fun getAllData() {
-
         //progress
         prg_flags.visibility = View.VISIBLE
 
         //listener
-        flagBuilder.getFeatureFlags(   object : IFlagArrayResult{
-            override fun success(list: ArrayList<ResponseFlag>) {
+        flagBuilder.getFeatureFlags { result ->
+            Helper.callViewInsideThread( activity) {
+                prg_flags.visibility = View.GONE
 
-                Helper.callViewInsideThread( activity) {
-                    //progress
-                    prg_flags.visibility = View.GONE
+                result.fold(
+                    onSuccess = { list ->
+                        if (list.isEmpty()) {
+                            Toast.makeText(this@FlagListActivity, "No Data Found", Toast.LENGTH_SHORT)
+                                .show()
+                            return@callViewInsideThread;
+                        }
 
-                    //check size
-                    if (list.size == 0) {
-                        Toast.makeText(this@FlagListActivity, "No Data Found", Toast.LENGTH_SHORT)
-                            .show()
-                        return@callViewInsideThread;
+                        //list
+                        createAdapterFlag(list);
+                    },
+                    onFailure = { e ->
+                        Toast.makeText(activity, e.localizedMessage, Toast.LENGTH_SHORT).show()
                     }
-
-                    //list
-                    createAdapterFlag(list);
-                }
-
+                )
             }
-            override fun failed(str: String) {
-
-                Helper.callViewInsideThread( activity) {
-                    //progress
-                    prg_flags.visibility = View.GONE
-
-                    //toast
-                    Toast.makeText(activity, str, Toast.LENGTH_SHORT).show()
-                }
-
-
-            }
-        })
+        }
     }
 
-
-    private fun createAdapterFlag(list: ArrayList<ResponseFlag>) {
+    private fun createAdapterFlag(list: List<ResponseFlag>) {
         val manager = LinearLayoutManager(context )
         manager.orientation = LinearLayoutManager.VERTICAL
         rv_flags.layoutManager = manager

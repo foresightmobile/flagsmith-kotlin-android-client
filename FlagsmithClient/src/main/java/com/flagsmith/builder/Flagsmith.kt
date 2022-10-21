@@ -16,8 +16,16 @@ class Flagsmith private constructor(
     }
 
 
-    fun getFeatureFlags(finish: IFlagArrayResult) {
-        GetFlags(this, finish)
+    fun getFeatureFlags(result: (Result<List<ResponseFlag>>) -> Unit) {
+        GetFlags(this, object : IFlagArrayResult {
+            override fun success(list: ArrayList<ResponseFlag>) {
+                result(Result.success(list))
+            }
+
+            override fun failed(str: String) {
+                result(Result.failure(IllegalStateException(str)))
+            }
+        })
     }
 
     fun hasFeatureFlag(searchFeatureId: String, result:(Result<Boolean>) -> Unit) {
