@@ -54,7 +54,7 @@ class TraitCreateActivity : AppCompatActivity() {
         flagBuilder = Flagsmith.Builder()
             .tokenApi( Helper.tokenApiKey)
             .environmentId(Helper.environmentDevelopmentKey)
-            .identity( Helper.identifierUserKey)
+//            .identity( Helper.identifierUserKey)
             .build()
     }
 
@@ -91,7 +91,7 @@ class TraitCreateActivity : AppCompatActivity() {
         //progress start
         prg_pageTraitCreate.visibility = View.VISIBLE
 
-        flagBuilder.setTrait(key, value) { result ->
+        flagBuilder.setTrait(key, value, Helper.identity) { result ->
             Helper.callViewInsideThread(activity) {
                 prg_pageTraitCreate.visibility = View.GONE
                 result.fold(

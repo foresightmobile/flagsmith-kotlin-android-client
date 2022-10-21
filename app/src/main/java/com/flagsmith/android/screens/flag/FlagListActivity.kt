@@ -43,10 +43,9 @@ class FlagListActivity : AppCompatActivity() {
         rv_flags = findViewById(R.id.rv_flags);
         prg_flags = findViewById(R.id.prg_flags)
 
-        initBuilder();
-
-        setupToolbar();
-
+        initBuilder()
+        setupToolbar()
+        checkWithHasFeatureFlag()
     }
 
     private fun setupToolbar() {
@@ -58,10 +57,18 @@ class FlagListActivity : AppCompatActivity() {
         flagBuilder = Flagsmith.Builder()
             .tokenApi( Helper.tokenApiKey)
             .environmentId(Helper.environmentDevelopmentKey)
-            .identity( Helper.identifierUserKey)
+//            .identity( Helper.identifierUserKey)
             .build();
     }
 
+    private fun checkWithHasFeatureFlag() {
+        flagBuilder.hasFeatureFlag("no-value") {
+            println("hasFeatureFlag 'no-value' $it")
+        }
+        flagBuilder.hasFeatureFlag("not-found") {
+            println("hasFeatureFlag 'not-found' $it")
+        }
+    }
 
     private fun getAllData() {
 

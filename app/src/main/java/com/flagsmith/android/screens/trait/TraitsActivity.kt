@@ -70,14 +70,14 @@ class TraitsActivity : AppCompatActivity() {
         flagBuilder = Flagsmith.Builder()
             .tokenApi(Helper.tokenApiKey)
             .environmentId(Helper.environmentDevelopmentKey)
-            .identity(Helper.identifierUserKey)
+//            .identity(Helper.identity)
             .build()
     }
 
 
     private fun getAllData() {
         prgTraits.visibility = View.VISIBLE
-        flagBuilder.getTrait(object : ITraitArrayResult {
+        flagBuilder.getTrait(Helper.identity, object : ITraitArrayResult {
             override fun success(list: ArrayList<ResponseTrait>) {
 
 

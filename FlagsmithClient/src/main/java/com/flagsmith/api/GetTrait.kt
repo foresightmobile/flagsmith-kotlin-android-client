@@ -10,14 +10,16 @@ import com.flagsmith.android.network.ApiManager
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-class Trait(builder: Flagsmith, finish: ITraitArrayResult) {
+class GetTrait(builder: Flagsmith, identity: String, finish: ITraitArrayResult) {
 
     var finish: ITraitArrayResult
     var builder: Flagsmith
+    var identity: String
 
     init {
         this.finish = finish
         this.builder = builder
+        this.identity = identity
 
         if (validateData()) {
             startAPI()
@@ -28,16 +30,16 @@ class Trait(builder: Flagsmith, finish: ITraitArrayResult) {
         val result = true
 
         //check identifier null
-        if (builder.identity.isNullOrEmpty()) {
-            finish.failed("User Identifier must to set in class 'FlagsmithBuilder' first")
-            return false
-        }
+//        if (builder.identity.isNullOrEmpty()) {
+//            finish.failed("User Identifier must to set in class 'FlagsmithBuilder' first")
+//            return false
+//        }
 
         return result
     }
 
     private fun startAPI() {
-        val url = ApiManager.BaseUrl.Url + "identities/?identifier=" + builder.identity
+        val url = ApiManager.BaseUrl.Url + "identities/?identifier=" + identity
         ApiManager(url, NetworkFlag.getNetworkHeader(builder), object :
             INetworkListener {
             override fun success(response: String?) {

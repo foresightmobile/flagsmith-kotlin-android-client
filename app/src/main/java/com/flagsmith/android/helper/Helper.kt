@@ -8,13 +8,10 @@ import android.view.inputmethod.InputMethodManager
 
 
 object Helper {
-
     //Pass in tokenApiKey, environmentDevelopmentKey & identifierUserKey from user dashboard
     var tokenApiKey: String = ""
-    var environmentDevelopmentKey = ""
-    var identifierUserKey: String = ""
-
-
+    var environmentDevelopmentKey = "F5X4CN67ZmSB547j2k2nX4" //TODO: Remove
+    var identity: String = ""
 
     fun keyboardHidden(mActivity: Activity) {
         try {

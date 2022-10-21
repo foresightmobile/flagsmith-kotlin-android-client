@@ -9,16 +9,18 @@ import com.flagsmith.response.ResponseIdentity
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-class SetTrait(builder: Flagsmith, key: String, value: String, finish: IIdentityResult) {
+class SetTrait(builder: Flagsmith, key: String, value: String, identity: String, finish: IIdentityResult) {
     var finish: IIdentityResult
     var key: String
     var value: String
+    var identity: String
     var builder: Flagsmith
 
     init {
         this.finish = finish
         this.key = key
         this.value = value
+        this.identity = identity
         this.builder = builder
 
         if (validateData()) {
@@ -29,7 +31,7 @@ class SetTrait(builder: Flagsmith, key: String, value: String, finish: IIdentity
     private fun validateData(): Boolean {
         val result = true
         //check identifier null
-        if (builder.identity.isNullOrEmpty()) {
+        if (identity.isEmpty()) {
             finish.failed(kotlin.IllegalStateException("User Identifier must to set in class 'FlagsmithBuilder' first"))
             return false
         }
@@ -61,7 +63,7 @@ class SetTrait(builder: Flagsmith, key: String, value: String, finish: IIdentity
     private fun getJsonPostBody(): String {
         return "{\n" +
                 "    \"identity\": {\n" +
-                "        \"identifier\": \"" + builder.identity + "\"\n" +
+                "        \"identifier\": \"" + identity + "\"\n" +
                 "    },\n" +
                 "    \"trait_key\": \"" + key + "\",\n" +
                 "    \"trait_value\": \"" + value + "\"\n" +

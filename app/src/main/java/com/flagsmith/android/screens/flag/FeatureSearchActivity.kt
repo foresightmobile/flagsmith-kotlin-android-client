@@ -51,7 +51,7 @@ class FeatureSearchActivity : AppCompatActivity() {
         flagBuilder = Flagsmith.Builder()
             .tokenApi( Helper.tokenApiKey)
             .environmentId(Helper.environmentDevelopmentKey)
-            .identity( Helper.identifierUserKey)
+            // .identity( Helper.identifierUserKey)
             .build()
     }
 
