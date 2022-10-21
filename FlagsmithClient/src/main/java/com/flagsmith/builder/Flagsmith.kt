@@ -2,7 +2,7 @@ package com.flagsmith.builder
 
 import com.flagsmith.api.*
 import com.flagsmith.interfaces.*
-import com.flagsmith.response.ResponseFlag
+import com.flagsmith.response.Flag
 import com.flagsmith.response.ResponseIdentity
 
 class Flagsmith private constructor(
@@ -16,9 +16,9 @@ class Flagsmith private constructor(
     }
 
 
-    fun getFeatureFlags(result: (Result<List<ResponseFlag>>) -> Unit) {
+    fun getFeatureFlags(result: (Result<List<Flag>>) -> Unit) {
         GetFlags(this, object : IFlagArrayResult {
-            override fun success(list: ArrayList<ResponseFlag>) {
+            override fun success(list: ArrayList<Flag>) {
                 result(Result.success(list))
             }
 
@@ -30,7 +30,7 @@ class Flagsmith private constructor(
 
     fun hasFeatureFlag(searchFeatureId: String, result:(Result<Boolean>) -> Unit) {
         GetFlags(this, object : IFlagArrayResult {
-            override fun success(list: ArrayList<ResponseFlag>) {
+            override fun success(list: ArrayList<Flag>) {
                 val found = list.find { flag -> flag.feature.name == searchFeatureId }
                 result(Result.success(found != null))
             }

@@ -8,7 +8,7 @@ import android.widget.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.flagsmith.builder.Flagsmith
-import com.flagsmith.response.ResponseFlag
+import com.flagsmith.response.Flag
 import com.flagmsith.R
 import com.flagsmith.android.adapter.FlagAdapter
 import com.flagsmith.android.adapter.FlagPickerSelect
@@ -85,9 +85,9 @@ class FeatureSearchActivity : AppCompatActivity() {
     }
 
 
-    private fun createAdapterFlag( flag: ResponseFlag) {
+    private fun createAdapterFlag( flag: Flag) {
 
-        val list: ArrayList<ResponseFlag> = ArrayList()
+        val list: ArrayList<Flag> = ArrayList()
         list.add( flag )
 
 
@@ -95,7 +95,7 @@ class FeatureSearchActivity : AppCompatActivity() {
         manager.orientation = LinearLayoutManager.VERTICAL
         rv_featureResult.layoutManager = manager
         val customAdapter = FlagAdapter(  activity , list, object : FlagPickerSelect {
-            override fun click(favContact: ResponseFlag?) {
+            override fun click(favContact: Flag?) {
 
             }
         })

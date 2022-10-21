@@ -3,14 +3,14 @@ package com.flagsmith.api
 import com.flagsmith.builder.Flagsmith
 import com.flagsmith.interfaces.IFlagArrayResult
 import com.flagsmith.interfaces.IFlagSingle
-import com.flagsmith.response.ResponseFlag
+import com.flagsmith.response.Flag
 
 class Feature(builder: Flagsmith, searchText: String, finish: IFlagSingle) {
 
     var builder: Flagsmith
     var searchText: String
     var finish: IFlagSingle
-    var resultList: ArrayList<ResponseFlag> = ArrayList()
+    var resultList: ArrayList<Flag> = ArrayList()
 
     init {
         this.searchText = searchText
@@ -23,7 +23,7 @@ class Feature(builder: Flagsmith, searchText: String, finish: IFlagSingle) {
 
     private fun startAPI() {
         GetFlags(builder, object : IFlagArrayResult {
-            override fun success(list: ArrayList<ResponseFlag>) {
+            override fun success(list: ArrayList<Flag>) {
                 resultList = list
                 searchInResult()
             }
@@ -52,7 +52,7 @@ class Feature(builder: Flagsmith, searchText: String, finish: IFlagSingle) {
         finish.failed("Not Found")
     }
 
-    private fun foundResult(m: ResponseFlag) {
+    private fun foundResult(m: Flag) {
         finish.success(m)
     }
 }

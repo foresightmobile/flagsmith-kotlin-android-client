@@ -2,7 +2,7 @@ package com.flagsmith.api
 
 
 import com.flagsmith.builder.Flagsmith
-import com.flagsmith.response.ResponseFlag
+import com.flagsmith.response.Flag
 import com.flagsmith.interfaces.INetworkListener
 import com.flagsmith.android.network.NetworkFlag
 import com.flagsmith.android.network.ApiManager
@@ -11,8 +11,6 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
 class GetFlags(builder: Flagsmith, finish: IFlagArrayResult) {
-
-
     var finish: IFlagArrayResult
     var builder: Flagsmith
 
@@ -39,12 +37,11 @@ class GetFlags(builder: Flagsmith, finish: IFlagArrayResult) {
         })
     }
 
-
     fun _parse(json: String, finish: IFlagArrayResult) {
         try {
             val gson = Gson()
-            val type = object : TypeToken<ArrayList<ResponseFlag>>() {}.type
-            val responseFromJson: ArrayList<ResponseFlag> = gson.fromJson(json, type)
+            val type = object : TypeToken<ArrayList<Flag>>() {}.type
+            val responseFromJson: ArrayList<Flag> = gson.fromJson(json, type)
             println("parse() - responseFromJson: $responseFromJson")
 
             //finish
@@ -53,6 +50,4 @@ class GetFlags(builder: Flagsmith, finish: IFlagArrayResult) {
             finish.failed("exception: $e")
         }
     }
-
-
 }

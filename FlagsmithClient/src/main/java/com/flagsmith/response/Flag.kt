@@ -3,7 +3,7 @@ package com.flagsmith.response
 import com.google.gson.annotations.SerializedName
 
 
-data class ResponseFlag(
+data class Flag(
     val feature: Feature,
     val featureStateValue: Any?,
     val enabled: Boolean

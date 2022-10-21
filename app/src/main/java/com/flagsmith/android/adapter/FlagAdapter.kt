@@ -8,18 +8,18 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
-import com.flagsmith.response.ResponseFlag
+import com.flagsmith.response.Flag
 import com.flagmsith.R
 
 
 interface FlagPickerSelect {
-    fun click(favContact: ResponseFlag?)
+    fun click(favContact: Flag?)
 }
 
 
 class FlagAdapter(
     private val context: Context,
-    private val resultList: List<ResponseFlag>,
+    private val resultList: List<Flag>,
     private var contactPickerSelect: FlagPickerSelect
 ) :
     RecyclerView.Adapter<FlagAdapter.MyViewHolder>() {
