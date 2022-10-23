@@ -15,23 +15,28 @@ class Flagsmith private constructor(
         return "tokenApi: $tokenApiKey /environmentId: $environmentKey"
     }
 
-    fun getFeatureFlags(result: (Result<List<Flag>>) -> Unit) {
-        GetFlags(this, object : IFlagArrayResult {
-            override fun success(list: ArrayList<Flag>) {
-                result(Result.success(list))
-            }
+    fun getFeatureFlags(identity: String?, result: (Result<List<Flag>>) -> Unit) {
+        if (identity != null) {
+            GetIdentityFlagsAndTraits(this, identity, object : )
+        } else {
+            GetFlags(this, identity = identity, object : IFlagArrayResult {
+                override fun success(list: ArrayList<Flag>) {
+                    result(Result.success(list))
+                }
 
-            override fun failed(str: String) {
-                result(Result.failure(IllegalStateException(str)))
-            }
-        })
+                override fun failed(str: String) {
+                    result(Result.failure(IllegalStateException(str)))
+                }
+            })
+        }
     }
 
-    fun hasFeatureFlag(searchFeatureId: String, result:(Result<Boolean>) -> Unit) {
-        GetFlags(this, object : IFlagArrayResult {
+    fun hasFeatureFlag(forFeatureId: String, identity: String? = null, result:(Result<Boolean>) -> Unit) {
+        GetFlags(this, identity, object : IFlagArrayResult {
             override fun success(list: ArrayList<Flag>) {
-                val found = list.find { flag -> flag.feature.name == searchFeatureId }
-                result(Result.success(found != null))
+                val found = list.find { flag -> flag.feature.name == forFeatureId }
+                val enabled = found?.enabled ?: false
+                result(Result.success(enabled))
             }
 
             override fun failed(str: String) {
@@ -41,7 +46,7 @@ class Flagsmith private constructor(
     }
 
     fun getValueForFeature(searchFeatureId: String, identity: String? = null, result: (Result<Any?>) -> Unit) {
-        GetFlags(this, object : IFlagArrayResult {
+        GetFlags(this, identity, object : IFlagArrayResult {
             override fun success(list: ArrayList<Flag>) {
                 val found = list.find { flag -> flag.feature.name == searchFeatureId }
                 result(Result.success(found?.featureStateValue))
@@ -54,15 +59,15 @@ class Flagsmith private constructor(
     }
 
     fun getTrait(forIdentity: String, finish: ITraitArrayResult) {
-        GetTrait(this, forIdentity, finish)
+        GetIdentityFlagsAndTraits(this, forIdentity, finish)
     }
 
     fun getTraits(forIdentity: String, finish: ITraitArrayResult){
-        GetTrait(this, forIdentity, finish)
+        GetIdentityFlagsAndTraits(this, forIdentity, finish)
     }
 
     fun setTrait(key: String, value: String, identity: String, result:(Result<ResponseIdentity>) -> Unit) {
-        SetTrait(this, key, value, identity, object : IIdentityResult {
+        SetTrait(this, key, value, identity, object : IIdentityFlagsAndTraitsResult {
                 override fun success(response: ResponseIdentity) {
                     result(Result.success(response))
                 }

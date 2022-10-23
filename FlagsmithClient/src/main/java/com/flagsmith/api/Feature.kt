@@ -22,7 +22,7 @@ class Feature(builder: Flagsmith, searchText: String, finish: IFlagSingle) {
 
 
     private fun startAPI() {
-        GetFlags(builder, object : IFlagArrayResult {
+        GetFlags(builder, identity = null, object : IFlagArrayResult {
             override fun success(list: ArrayList<Flag>) {
                 resultList = list
                 searchInResult()

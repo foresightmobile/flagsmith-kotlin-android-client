@@ -1,6 +1,7 @@
 package com.flagsmith.api
 
 
+import android.net.Uri
 import com.flagsmith.builder.Flagsmith
 import com.flagsmith.response.Flag
 import com.flagsmith.interfaces.INetworkListener
@@ -9,13 +10,15 @@ import com.flagsmith.android.network.ApiManager
 import com.flagsmith.interfaces.IFlagArrayResult
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.net.URLEncoder
 
-class GetFlags(builder: Flagsmith, finish: IFlagArrayResult) {
+class GetFlags(builder: Flagsmith, identity: String?, finish: IFlagArrayResult) {
     var finish: IFlagArrayResult
+    var identity: String?
     var builder: Flagsmith
 
     init {
-
+        this.identity = identity
         this.finish = finish
         this.builder = builder
 
@@ -23,7 +26,12 @@ class GetFlags(builder: Flagsmith, finish: IFlagArrayResult) {
     }
 
     private fun startAPI() {
-        val url = ApiManager.BaseUrl.Url + "flags/"
+        var url = ApiManager.BaseUrl.Url + "flags/"
+
+        //TODO: Not sure this does anything
+        if (identity != null) {
+           url += "?identifier=" + URLEncoder.encode(identity, "utf-8")
+        }
 
         ApiManager(url, NetworkFlag.getNetworkHeader(builder), object : INetworkListener {
             override fun success(response: String?) {

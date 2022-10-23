@@ -52,6 +52,15 @@ class FeatureFlagTests {
     }
 
     @Test
+    fun testGetValueForFeatureExistingOverriddenWithIdentity() {
+        runBlocking {
+            val result = flagsmith.getValueForFeatureSync("with-value", identity = "person")
+            assertTrue(result.isSuccess)
+            assertEquals(result.getOrThrow(), 756.0)
+        }
+    }
+
+    @Test
     fun testGetValueForFeatureNotExisting() {
         runBlocking {
             val result = flagsmith.getValueForFeatureSync("not-existing", identity = null)
@@ -62,11 +71,19 @@ class FeatureFlagTests {
 
     @Test
     fun testHasFeatureForNoIdentity() {
-
+        runBlocking {
+            val result = flagsmith.hasFeatureFlagSync("with-value-just-person-enabled", identity = null)
+            assertTrue(result.isSuccess)
+            assertFalse(result.getOrThrow())
+        }
     }
 
     @Test
-    fun testHasFeatureForPerson() {
-
+    fun testHasFeatureWithIdentity() {
+        runBlocking {
+            val result = flagsmith.hasFeatureFlagSync("with-value-just-person-enabled", identity = "person")
+            assertTrue(result.isSuccess)
+            assertTrue(result.getOrThrow()) //TODO: This is coming back false - could be Flagsmith issue
+        }
     }
 }

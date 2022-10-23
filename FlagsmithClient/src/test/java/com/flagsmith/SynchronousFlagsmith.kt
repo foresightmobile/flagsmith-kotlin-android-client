@@ -5,11 +5,11 @@ import com.flagsmith.response.Flag
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-suspend fun Flagsmith.hasFeatureFlagSync(searchFeatureId: String): Result<Boolean>
-    = suspendCoroutine { cont -> this.hasFeatureFlag(searchFeatureId) { cont.resume(it) } }
+suspend fun Flagsmith.hasFeatureFlagSync(forFeatureId: String, identity: String? = null): Result<Boolean>
+    = suspendCoroutine { cont -> this.hasFeatureFlag(forFeatureId, identity = identity) { cont.resume(it) } }
 
-suspend fun Flagsmith.getFeatureFlagsSync() : Result<List<Flag>>
-    = suspendCoroutine { cont -> this.getFeatureFlags { cont.resume(it) } }
+suspend fun Flagsmith.getFeatureFlagsSync(identity: String? = null) : Result<List<Flag>>
+    = suspendCoroutine { cont -> this.getFeatureFlags(identity = identity) { cont.resume(it) } }
 
-suspend fun Flagsmith.getValueForFeatureSync(searchFeatureId: String, identity: String? = null): Result<Any?>
-    = suspendCoroutine { cont -> this.getValueForFeature(searchFeatureId, identity) { cont.resume(it) } }
+suspend fun Flagsmith.getValueForFeatureSync(forFeatureId: String, identity: String? = null): Result<Any?>
+    = suspendCoroutine { cont -> this.getValueForFeature(forFeatureId, identity = identity) { cont.resume(it) } }

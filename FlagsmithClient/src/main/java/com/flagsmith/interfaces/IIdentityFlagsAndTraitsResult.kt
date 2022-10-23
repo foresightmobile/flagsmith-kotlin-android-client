@@ -2,7 +2,7 @@ package com.flagsmith.interfaces
 
 import com.flagsmith.response.ResponseIdentity
 
-interface IIdentityResult {
+interface IIdentityFlagsAndTraitsResult {
     fun success(response: ResponseIdentity)
     fun failed(e: Exception)
 }

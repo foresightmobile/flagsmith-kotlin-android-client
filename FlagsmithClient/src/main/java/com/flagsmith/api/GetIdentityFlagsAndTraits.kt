@@ -7,12 +7,13 @@ import com.flagsmith.response.ResponseTraits
 import com.flagsmith.interfaces.INetworkListener
 import com.flagsmith.android.network.NetworkFlag
 import com.flagsmith.android.network.ApiManager
+import com.flagsmith.interfaces.IIdentityFlagsAndTraitsResult
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-class GetTrait(builder: Flagsmith, identity: String, finish: ITraitArrayResult) {
+class GetIdentityFlagsAndTraits(builder: Flagsmith, identity: String, finish: IIdentityFlagsAndTraitsResult) {
 
-    var finish: ITraitArrayResult
+    var finish: IIdentityFlagsAndTraitsResult
     var builder: Flagsmith
     var identity: String
 

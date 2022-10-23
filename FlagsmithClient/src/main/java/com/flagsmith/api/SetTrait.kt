@@ -1,7 +1,7 @@
 package com.flagsmith.api
 
 import com.flagsmith.builder.Flagsmith
-import com.flagsmith.interfaces.IIdentityResult
+import com.flagsmith.interfaces.IIdentityFlagsAndTraitsResult
 import com.flagsmith.interfaces.INetworkListener
 import com.flagsmith.android.network.NetworkFlag
 import com.flagsmith.android.network.ApiManager
@@ -9,8 +9,8 @@ import com.flagsmith.response.ResponseIdentity
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-class SetTrait(builder: Flagsmith, key: String, value: String, identity: String, finish: IIdentityResult) {
-    var finish: IIdentityResult
+class SetTrait(builder: Flagsmith, key: String, value: String, identity: String, finish: IIdentityFlagsAndTraitsResult) {
+    var finish: IIdentityFlagsAndTraitsResult
     var key: String
     var value: String
     var identity: String
