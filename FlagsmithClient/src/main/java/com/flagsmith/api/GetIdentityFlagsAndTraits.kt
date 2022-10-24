@@ -49,7 +49,6 @@ class GetIdentityFlagsAndTraits(builder: Flagsmith, identity: String, finish: II
         })
     }
 
-
     fun _parse(json: String) {
         try {
             val gson = Gson()

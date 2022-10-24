@@ -5,7 +5,6 @@ import com.flagsmith.interfaces.*
 import com.flagsmith.response.Flag
 import com.flagsmith.response.ResponseIdentityFlagsAndTraits
 import com.flagsmith.response.ResponseTrait
-import okhttp3.internal.notify
 
 class Flagsmith private constructor(
     val tokenApiKey: String?,
@@ -97,7 +96,7 @@ class Flagsmith private constructor(
     fun getTrait(id: String, identity: String, result: (Result<ResponseTrait?>) -> Unit) {
         GetIdentityFlagsAndTraits(this, identity = identity, object: IIdentityFlagsAndTraitsResult {
             override fun success(response: ResponseIdentityFlagsAndTraits) {
-                val trait = response.responseTraits.find { it.trait_key == id }
+                val trait = response.traits.find { it.trait_key == id }
                 result(Result.success(trait))
             }
 
@@ -110,7 +109,7 @@ class Flagsmith private constructor(
     fun getTraits(identity: String, result: (Result<List<ResponseTrait>>) -> Unit) {
         GetIdentityFlagsAndTraits(this, identity = identity, object: IIdentityFlagsAndTraitsResult {
             override fun success(response: ResponseIdentityFlagsAndTraits) {
-                result(Result.success(response.responseTraits))
+                result(Result.success(response.traits))
             }
 
             override fun failed(e: Exception) {
