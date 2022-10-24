@@ -83,7 +83,7 @@ class FeatureFlagTests {
         runBlocking {
             val result = flagsmith.hasFeatureFlagSync("with-value-just-person-enabled", identity = "person")
             assertTrue(result.isSuccess)
-            assertTrue(result.getOrThrow()) //TODO: This is coming back false - could be Flagsmith issue
+            assertTrue(result.getOrThrow()) //TODO: This is coming back false - could be dashboard issue
         }
     }
 }

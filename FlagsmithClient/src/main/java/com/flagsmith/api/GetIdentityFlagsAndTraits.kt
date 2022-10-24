@@ -8,6 +8,7 @@ import com.flagsmith.interfaces.INetworkListener
 import com.flagsmith.android.network.NetworkFlag
 import com.flagsmith.android.network.ApiManager
 import com.flagsmith.interfaces.IIdentityFlagsAndTraitsResult
+import com.flagsmith.response.ResponseIdentityFlagsAndTraits
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -30,12 +31,6 @@ class GetIdentityFlagsAndTraits(builder: Flagsmith, identity: String, finish: II
     private fun validateData(): Boolean {
         val result = true
 
-        //check identifier null
-//        if (builder.identity.isNullOrEmpty()) {
-//            finish.failed("User Identifier must to set in class 'FlagsmithBuilder' first")
-//            return false
-//        }
-
         return result
     }
 
@@ -48,7 +43,7 @@ class GetIdentityFlagsAndTraits(builder: Flagsmith, identity: String, finish: II
             }
 
             override fun failed(exception: Exception) {
-                finish.failed(exception.localizedMessage ?: "Error getting trait")
+                finish.failed(exception)
             }
 
         })
@@ -58,14 +53,14 @@ class GetIdentityFlagsAndTraits(builder: Flagsmith, identity: String, finish: II
     fun _parse(json: String) {
         try {
             val gson = Gson()
-            val type = object : TypeToken<ResponseTraits>() {}.type
-            val responseFromJson: ResponseTraits = gson.fromJson(json, type)
+            val type = object : TypeToken<ResponseIdentityFlagsAndTraits>() {}.type
+            val responseFromJson: ResponseIdentityFlagsAndTraits = gson.fromJson(json, type)
             println("parse() - responseFromJson: $responseFromJson")
 
             //finish
-            finish.success(responseFromJson.responseTraits)
+            finish.success(responseFromJson)
         } catch (e: Exception) {
-            finish.failed("exception: $e")
+            finish.failed(e)
         }
     }
 

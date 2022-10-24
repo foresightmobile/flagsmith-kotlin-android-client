@@ -3,7 +3,8 @@ package com.flagsmith.builder
 import com.flagsmith.api.*
 import com.flagsmith.interfaces.*
 import com.flagsmith.response.Flag
-import com.flagsmith.response.ResponseIdentity
+import com.flagsmith.response.ResponseIdentityFlagsAndTraits
+import com.flagsmith.response.ResponseTrait
 
 class Flagsmith private constructor(
     val tokenApiKey: String?,
@@ -17,7 +18,15 @@ class Flagsmith private constructor(
 
     fun getFeatureFlags(identity: String?, result: (Result<List<Flag>>) -> Unit) {
         if (identity != null) {
-            GetIdentityFlagsAndTraits(this, identity, object : )
+            GetIdentityFlagsAndTraits(this, identity, object : IIdentityFlagsAndTraitsResult {
+                override fun success(response: ResponseIdentityFlagsAndTraits) {
+                    result(Result.success(response.flags))
+                }
+
+                override fun failed(e: Exception) {
+                    result(Result.failure(e))
+                }
+            })
         } else {
             GetFlags(this, identity = identity, object : IFlagArrayResult {
                 override fun success(list: ArrayList<Flag>) {
@@ -58,17 +67,34 @@ class Flagsmith private constructor(
         })
     }
 
-    fun getTrait(forIdentity: String, finish: ITraitArrayResult) {
-        GetIdentityFlagsAndTraits(this, forIdentity, finish)
+    fun getTrait(id: String, identity: String, result: (Result<ResponseTrait>) -> Unit) {
+        GetIdentityFlagsAndTraits(this, identity = identity, object: IIdentityFlagsAndTraitsResult {
+            override fun success(response: ResponseIdentityFlagsAndTraits) {
+                val trait = response.responseTraits.first { it.trait_key == id }
+                result(Result.success(trait))
+            }
+
+            override fun failed(e: Exception) {
+                result(Result.failure(e))
+            }
+        })
     }
 
-    fun getTraits(forIdentity: String, finish: ITraitArrayResult){
-        GetIdentityFlagsAndTraits(this, forIdentity, finish)
+    fun getTraits(identity: String, result: (Result<List<ResponseTrait>>) -> Unit) {
+        GetIdentityFlagsAndTraits(this, identity = identity, object: IIdentityFlagsAndTraitsResult {
+            override fun success(response: ResponseIdentityFlagsAndTraits) {
+                result(Result.success(response.responseTraits))
+            }
+
+            override fun failed(e: Exception) {
+                result(Result.failure(e))
+            }
+        })
     }
 
-    fun setTrait(key: String, value: String, identity: String, result:(Result<ResponseIdentity>) -> Unit) {
+    fun setTrait(key: String, value: String, identity: String, result:(Result<ResponseIdentityFlagsAndTraits>) -> Unit) {
         SetTrait(this, key, value, identity, object : IIdentityFlagsAndTraitsResult {
-                override fun success(response: ResponseIdentity) {
+                override fun success(response: ResponseIdentityFlagsAndTraits) {
                     result(Result.success(response))
                 }
 

@@ -26,12 +26,12 @@ class GetFlags(builder: Flagsmith, identity: String?, finish: IFlagArrayResult) 
     }
 
     private fun startAPI() {
-        var url = ApiManager.BaseUrl.Url + "flags/"
+        val url = ApiManager.BaseUrl.Url + "flags/"
 
-        //TODO: Not sure this does anything
-        if (identity != null) {
-           url += "?identifier=" + URLEncoder.encode(identity, "utf-8")
-        }
+
+//        if (identity != null) {
+//           url += "?identifier=" + URLEncoder.encode(identity, "utf-8")
+//        }
 
         ApiManager(url, NetworkFlag.getNetworkHeader(builder), object : INetworkListener {
             override fun success(response: String?) {
