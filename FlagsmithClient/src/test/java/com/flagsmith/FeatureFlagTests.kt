@@ -8,7 +8,6 @@ import org.junit.Test
 class FeatureFlagTests {
 
     private val flagsmith = Flagsmith.Builder()
-        // .tokenApi("tokenApiKey")
         .environmentId("F5X4CN67ZmSB547j2k2nX4")
         .build();
 

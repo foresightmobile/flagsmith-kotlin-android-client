@@ -9,10 +9,6 @@ import java.util.concurrent.TimeUnit
 
 
 class ApiManager {
-    object BaseUrl{
-        const val Url ="https://edge.api.flagsmith.com/api/v1/"
-    }
-
     var url: String
     var passBody: HashMap<String, String>? = null
     var postJsonRaw: String? = null

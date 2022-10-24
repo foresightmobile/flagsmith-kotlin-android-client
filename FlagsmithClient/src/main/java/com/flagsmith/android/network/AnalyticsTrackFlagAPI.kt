@@ -7,7 +7,6 @@ import com.flagsmith.interfaces.INetworkListener
 import org.json.JSONObject
 
 class AnalyticsTrackFlagAPI(builder: Flagsmith, eventMap: Map<String, Int?>, finish: IEventUpdate) {
-
     var finish: IEventUpdate
     var eventMap: Map<String, Int?>
     var builder: Flagsmith
@@ -27,7 +26,7 @@ class AnalyticsTrackFlagAPI(builder: Flagsmith, eventMap: Map<String, Int?>, fin
     }
 
     private fun startAPI() {
-        val url = ApiManager.BaseUrl.Url + "analytics/flags/"
+        val url = builder.baseUrl + "analytics/flags/"
         val header = NetworkFlag.getNetworkHeader(builder)
 
         ApiManager(

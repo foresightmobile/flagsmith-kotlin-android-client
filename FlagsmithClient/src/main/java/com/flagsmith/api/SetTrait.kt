@@ -40,7 +40,7 @@ class SetTrait(builder: Flagsmith, trait: Trait, identity: String, finish: ITrai
     }
 
     private fun startAPI() {
-        val url = ApiManager.BaseUrl.Url + "traits/"
+        val url = builder.baseUrl + "traits/"
         val header = NetworkFlag.getNetworkHeader(builder)
 
         ApiManager(

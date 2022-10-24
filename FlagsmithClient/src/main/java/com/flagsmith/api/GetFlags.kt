@@ -24,7 +24,7 @@ class GetFlags(builder: Flagsmith, finish: IFlagArrayResult) {
     }
 
     private fun startAPI() {
-        val url = ApiManager.BaseUrl.Url + "flags/"
+        val url = builder.baseUrl + "flags/"
 
 
 //        if (identity != null) {

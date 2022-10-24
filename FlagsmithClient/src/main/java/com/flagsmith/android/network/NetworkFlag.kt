@@ -11,5 +11,4 @@ object NetworkFlag {
         return hashMap;
     }
 
-
 }

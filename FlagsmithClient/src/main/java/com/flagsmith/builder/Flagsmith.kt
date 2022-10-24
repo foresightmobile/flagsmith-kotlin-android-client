@@ -7,11 +7,14 @@ import com.flagsmith.response.*
 class Flagsmith private constructor(
     val tokenApiKey: String?,
     val environmentKey: String?,
-//    val identity: String?
+    val baseUrl: String = DEFAULT_BASE_URL
 ) {
+    companion object {
+        const val DEFAULT_BASE_URL = "https://edge.api.flagsmith.com/api/v1/"
+    }
 
     override fun toString(): String {
-        return "tokenApi: $tokenApiKey /environmentId: $environmentKey"
+        return "Flagsmith(tokenApiKey=$tokenApiKey, environmentKey=$environmentKey, baseUrl='$baseUrl')"
     }
 
     fun getFeatureFlags(identity: String?, result: (Result<List<Flag>>) -> Unit) {
@@ -148,16 +151,15 @@ class Flagsmith private constructor(
     data class Builder(
         var tokenApi: String? = null,
         var environmentKey: String? = null,
-        // var identity: String? = null
+        var baseUrl: String? = null
     ) {
 
         fun tokenApi(v: String) = apply { this.tokenApi = v }
         fun environmentId(v: String) = apply { this.environmentKey = v }
-        // fun identity(v: String) = apply { this.identity = v }
-
+        fun baseUrl(v: String) = apply { this.baseUrl = v }
 
         fun build(): Flagsmith {
-            return Flagsmith(tokenApi, environmentKey)
+            return Flagsmith(tokenApi, environmentKey, baseUrl ?: DEFAULT_BASE_URL)
         }
 
     }

@@ -9,7 +9,6 @@ import org.junit.Test
 class TraitsTests {
 
     private val flagsmith = Flagsmith.Builder()
-        // .tokenApi("tokenApiKey")
         .environmentId("F5X4CN67ZmSB547j2k2nX4")
         .build();
 

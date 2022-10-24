@@ -12,7 +12,6 @@ import com.google.gson.reflect.TypeToken
 import java.net.URLEncoder
 
 class GetIdentityFlagsAndTraits(builder: Flagsmith, identity: String, finish: IIdentityFlagsAndTraitsResult) {
-
     var finish: IIdentityFlagsAndTraitsResult
     var builder: Flagsmith
     var identity: String
@@ -34,7 +33,7 @@ class GetIdentityFlagsAndTraits(builder: Flagsmith, identity: String, finish: II
     }
 
     private fun startAPI() {
-        val url = ApiManager.BaseUrl.Url + "identities/?identifier=" + URLEncoder.encode(identity, "utf-8")
+        val url = builder.baseUrl + "identities/?identifier=" + URLEncoder.encode(identity, "utf-8")
         ApiManager(url, NetworkFlag.getNetworkHeader(builder), object :
             INetworkListener {
             override fun success(response: String?) {
