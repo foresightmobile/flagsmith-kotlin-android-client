@@ -1,25 +1,29 @@
 package com.flagsmith.api
 
+import com.flagsmith.android.network.ApiManager
+import com.flagsmith.android.network.NetworkFlag
 import com.flagsmith.builder.Flagsmith
 import com.flagsmith.interfaces.IIdentityFlagsAndTraitsResult
 import com.flagsmith.interfaces.INetworkListener
-import com.flagsmith.android.network.NetworkFlag
-import com.flagsmith.android.network.ApiManager
+import com.flagsmith.interfaces.ITraitUpdateResult
+import com.flagsmith.response.Identity
 import com.flagsmith.response.ResponseIdentityFlagsAndTraits
+import com.flagsmith.response.Trait
+import com.flagsmith.response.TraitWithIdentity
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import org.json.JSONObject
+import java.net.URLEncoder
 
-class SetTrait(builder: Flagsmith, key: String, value: String, identity: String, finish: IIdentityFlagsAndTraitsResult) {
-    var finish: IIdentityFlagsAndTraitsResult
-    var key: String
-    var value: String
+class SetTrait(builder: Flagsmith, trait: Trait, identity: String, finish: ITraitUpdateResult) {
+    var finish: ITraitUpdateResult
+    var trait: Trait
     var identity: String
     var builder: Flagsmith
 
     init {
         this.finish = finish
-        this.key = key
-        this.value = value
+        this.trait = trait
         this.identity = identity
         this.builder = builder
 
@@ -41,7 +45,6 @@ class SetTrait(builder: Flagsmith, key: String, value: String, identity: String,
 
     private fun startAPI() {
         val url = ApiManager.BaseUrl.Url + "traits/"
-
         val header = NetworkFlag.getNetworkHeader(builder)
 
         ApiManager(
@@ -61,21 +64,16 @@ class SetTrait(builder: Flagsmith, key: String, value: String, identity: String,
     }
 
     private fun getJsonPostBody(): String {
-        return "{\n" +
-                "    \"identity\": {\n" +
-                "        \"identifier\": \"" + identity + "\"\n" +
-                "    },\n" +
-                "    \"trait_key\": \"" + key + "\",\n" +
-                "    \"trait_value\": \"" + value + "\"\n" +
-                "}"
+        val traitWithIdentity = TraitWithIdentity(key = trait.key, value = trait.value, identity = Identity(identity))
+        val gson = Gson();
+        return gson.toJson(traitWithIdentity)
     }
-
 
     fun _parse(json: String) {
         try {
             val gson = Gson()
-            val type = object : TypeToken<ResponseIdentityFlagsAndTraits>() {}.type
-            val responseFromJson: ResponseIdentityFlagsAndTraits = gson.fromJson(json, type)
+            val type = object : TypeToken<TraitWithIdentity>() {}.type
+            val responseFromJson: TraitWithIdentity = gson.fromJson(json, type)
             println("parse() - responseFromJson: $responseFromJson")
 
             //finish

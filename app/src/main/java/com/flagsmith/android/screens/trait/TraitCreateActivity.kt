@@ -13,7 +13,6 @@ import com.flagsmith.builder.Flagsmith
 import com.flagmsith.R
 
 import com.flagsmith.android.helper.Helper
-import com.flagsmith.response.ResponseTraitUpdate
 
 
 class TraitCreateActivity : AppCompatActivity() {
@@ -91,7 +90,7 @@ class TraitCreateActivity : AppCompatActivity() {
         //progress start
         prg_pageTraitCreate.visibility = View.VISIBLE
 
-        flagBuilder.setTrait(key, value, Helper.identity) { result ->
+        flagBuilder.setTraitOld(key, value, Helper.identity) { result ->
             Helper.callViewInsideThread(activity) {
                 prg_pageTraitCreate.visibility = View.GONE
                 result.fold(

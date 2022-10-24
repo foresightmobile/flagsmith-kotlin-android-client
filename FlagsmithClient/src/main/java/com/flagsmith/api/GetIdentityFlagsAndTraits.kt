@@ -2,8 +2,6 @@ package com.flagsmith.api
 
 
 import com.flagsmith.builder.Flagsmith
-import com.flagsmith.interfaces.ITraitArrayResult
-import com.flagsmith.response.ResponseTraits
 import com.flagsmith.interfaces.INetworkListener
 import com.flagsmith.android.network.NetworkFlag
 import com.flagsmith.android.network.ApiManager
@@ -11,6 +9,7 @@ import com.flagsmith.interfaces.IIdentityFlagsAndTraitsResult
 import com.flagsmith.response.ResponseIdentityFlagsAndTraits
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.net.URLEncoder
 
 class GetIdentityFlagsAndTraits(builder: Flagsmith, identity: String, finish: IIdentityFlagsAndTraitsResult) {
 
@@ -35,7 +34,7 @@ class GetIdentityFlagsAndTraits(builder: Flagsmith, identity: String, finish: II
     }
 
     private fun startAPI() {
-        val url = ApiManager.BaseUrl.Url + "identities/?identifier=" + identity
+        val url = ApiManager.BaseUrl.Url + "identities/?identifier=" + URLEncoder.encode(identity, "utf-8")
         ApiManager(url, NetworkFlag.getNetworkHeader(builder), object :
             INetworkListener {
             override fun success(response: String?) {

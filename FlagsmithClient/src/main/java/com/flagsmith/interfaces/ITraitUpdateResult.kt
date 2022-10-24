@@ -1,9 +1,8 @@
 package com.flagsmith.interfaces
 
-import com.flagsmith.response.ResponseTraitUpdate
+import com.flagsmith.response.TraitWithIdentity
 
 interface ITraitUpdateResult {
-    fun success( response: ResponseTraitUpdate);
-    fun failed(str : String );
-
+    fun success(response: TraitWithIdentity);
+    fun failed(exception: Exception );
 }
