@@ -24,9 +24,7 @@ class FeatureSearchActivity : AppCompatActivity() {
     lateinit var prg_pageFeatureSearch : ProgressBar
     lateinit var rv_featureResult : RecyclerView
 
-
     lateinit var flagBuilder : Flagsmith
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,14 +80,31 @@ class FeatureSearchActivity : AppCompatActivity() {
 
         //TODO: It
         // flagBuilder.getFeatureFlags(searchText)
+        flagBuilder.getFeatureFlags(Helper.identity) { result ->
+            Helper.callViewInsideThread( activity) {
+                prg_pageFeatureSearch.visibility = View.GONE
+                result.fold(
+                    onSuccess = { flags ->
+                        val flag = flags.find { flag -> flag.feature.name == searchText }
+                        if (flag != null) {
+                            createAdapterFlag(flag)
+                        } else {
+                            Toast.makeText(this@FeatureSearchActivity, "Couldn't find feature", Toast.LENGTH_SHORT)
+                                .show()
+                        }
+                    },
+                    onFailure = { e ->
+                        Toast.makeText(activity, e.localizedMessage, Toast.LENGTH_SHORT).show()
+                    }
+                )
+            }
+        }
     }
 
 
     private fun createAdapterFlag( flag: Flag) {
-
         val list: ArrayList<Flag> = ArrayList()
         list.add( flag )
-
 
         val manager = LinearLayoutManager( activity )
         manager.orientation = LinearLayoutManager.VERTICAL
@@ -99,8 +114,8 @@ class FeatureSearchActivity : AppCompatActivity() {
 
             }
         })
-        rv_featureResult.adapter = customAdapter
 
+        rv_featureResult.adapter = customAdapter
         rv_featureResult.visibility = View.VISIBLE
     }
 

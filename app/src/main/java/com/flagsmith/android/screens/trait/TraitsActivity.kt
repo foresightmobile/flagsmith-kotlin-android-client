@@ -77,44 +77,30 @@ class TraitsActivity : AppCompatActivity() {
 
     private fun getAllData() {
         prgTraits.visibility = View.VISIBLE
-        flagBuilder.getTrait(Helper.identity, object : ITraitArrayResult {
-            override fun success(list: ArrayList<Trait>) {
 
+        flagBuilder.getTraits(Helper.identity) { result ->
+            Helper.callViewInsideThread(activity) {
+                prgTraits.visibility = View.GONE
+                result.fold(
+                    onSuccess = { traits ->
+                        if (traits.isEmpty()) {
+                            Toast.makeText(this@TraitsActivity, "No Data Found", Toast.LENGTH_SHORT)
+                                .show()
+                            return@callViewInsideThread
+                        }
 
-                Helper.callViewInsideThread(activity) {
-
-                    //progress
-                    prgTraits.visibility = View.GONE
-
-                    //check size
-                    if (list.size == 0) {
-                        Toast.makeText(this@TraitsActivity, "No Data Found", Toast.LENGTH_SHORT)
-                            .show()
-                        return@callViewInsideThread
+                        createAdapterFlag(traits)
+                    },
+                    onFailure = {
+                        Toast.makeText(this@TraitsActivity, it.localizedMessage, Toast.LENGTH_SHORT).show()
                     }
-
-                    createAdapterFlag(list)
-                }
-
+                )
             }
-
-            override fun failed(str: String) {
-
-
-                Helper.callViewInsideThread(activity) {
-                    //progress
-                    prgTraits.visibility = View.GONE
-
-                    //toast
-                    Toast.makeText(this@TraitsActivity, str, Toast.LENGTH_SHORT).show()
-                }
-
-            }
-        })
+        }
     }
 
 
-    private fun createAdapterFlag(list: ArrayList<Trait>) {
+    private fun createAdapterFlag(list: List<Trait>) {
         val manager = LinearLayoutManager(context)
         manager.orientation = LinearLayoutManager.VERTICAL
         rvTraits.layoutManager = manager

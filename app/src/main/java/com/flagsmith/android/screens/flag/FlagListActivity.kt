@@ -89,7 +89,7 @@ class FlagListActivity : AppCompatActivity() {
         prg_flags.visibility = View.VISIBLE
 
         //listener
-        flagBuilder.getFeatureFlags { result ->
+        flagBuilder.getFeatureFlags(Helper.identity) { result ->
             Helper.callViewInsideThread( activity) {
                 prg_flags.visibility = View.GONE
 

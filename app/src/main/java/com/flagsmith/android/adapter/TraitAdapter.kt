@@ -19,7 +19,7 @@ interface TraitPickerSelect {
 
 class TraitAdapter(
     private val context: Context,
-    private val resultList: ArrayList<Trait>,
+    private val resultList: List<Trait>,
     private var contactPickerSelect: TraitPickerSelect
 ) :
     RecyclerView.Adapter<TraitAdapter.MyViewHolder>() {
