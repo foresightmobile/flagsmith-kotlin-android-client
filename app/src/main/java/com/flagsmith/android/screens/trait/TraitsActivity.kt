@@ -12,7 +12,6 @@ import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.flagsmith.builder.Flagsmith
-import com.flagsmith.interfaces.ITraitArrayResult
 import com.flagsmith.response.Trait
 import com.flagmsith.R
 import com.flagsmith.android.adapter.TraitAdapter
@@ -68,8 +67,8 @@ class TraitsActivity : AppCompatActivity() {
 
     private fun initBuilder() {
         flagBuilder = Flagsmith.Builder()
-            .tokenApi(Helper.tokenApiKey)
-            .environmentId(Helper.environmentDevelopmentKey)
+            .apiAuthToken(Helper.tokenApiKey)
+            .environmentKey(Helper.environmentDevelopmentKey)
 //            .identity(Helper.identity)
             .build()
     }

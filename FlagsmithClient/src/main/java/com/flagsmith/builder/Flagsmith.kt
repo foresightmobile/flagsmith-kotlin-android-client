@@ -5,16 +5,16 @@ import com.flagsmith.interfaces.*
 import com.flagsmith.response.*
 
 class Flagsmith private constructor(
-    val tokenApiKey: String?,
+    val apiAuthToken: String?,
     val environmentKey: String?,
-    val baseUrl: String = DEFAULT_BASE_URL
+    val baseUrl: String = DEFAULT_BASE_URL,
+    val enableAnalytics: Boolean = DEFAULT_ENABLE_ANALYTICS,
+    val analyticsFlushPeriod: Int = DEFAULT_ANALYTICS_FLUSH_PERIOD_SECONDS
 ) {
     companion object {
         const val DEFAULT_BASE_URL = "https://edge.api.flagsmith.com/api/v1/"
-    }
-
-    override fun toString(): String {
-        return "Flagsmith(tokenApiKey=$tokenApiKey, environmentKey=$environmentKey, baseUrl='$baseUrl')"
+        const val DEFAULT_ENABLE_ANALYTICS = true
+        const val DEFAULT_ANALYTICS_FLUSH_PERIOD_SECONDS = 10
     }
 
     fun getFeatureFlags(identity: String?, result: (Result<List<Flag>>) -> Unit) {
@@ -143,24 +143,29 @@ class Flagsmith private constructor(
         })
     }
 
-//    fun enableAnalytics(analytics: FlagsmithAnalytics) {
-//        analytics(this, )
-//    }
-
-
     data class Builder(
-        var tokenApi: String? = null,
+        var apiAuthToken: String? = null,
         var environmentKey: String? = null,
-        var baseUrl: String? = null
+        var baseUrl: String? = null,
+        var enableAnalytics: Boolean? = null,
+        var analyticsFlushPeriod: Int? = null
     ) {
 
-        fun tokenApi(v: String) = apply { this.tokenApi = v }
-        fun environmentId(v: String) = apply { this.environmentKey = v }
+        fun apiAuthToken(v: String) = apply { this.apiAuthToken = v }
+        fun environmentKey(v: String) = apply { this.environmentKey = v }
         fun baseUrl(v: String) = apply { this.baseUrl = v }
+        fun enableAnalytics(v: Boolean) = apply { this.enableAnalytics = v }
+        fun analyticsFlushPeriod(v: Int) = apply { this.analyticsFlushPeriod = v }
 
         fun build(): Flagsmith {
-            return Flagsmith(tokenApi, environmentKey, baseUrl ?: DEFAULT_BASE_URL)
+            return Flagsmith(apiAuthToken = apiAuthToken, environmentKey = environmentKey,
+                baseUrl = baseUrl ?: DEFAULT_BASE_URL, enableAnalytics = enableAnalytics ?: DEFAULT_ENABLE_ANALYTICS,
+                analyticsFlushPeriod = analyticsFlushPeriod ?: DEFAULT_ANALYTICS_FLUSH_PERIOD_SECONDS
+            )
         }
+    }
 
+    override fun toString(): String {
+        return "Flagsmith(apiAuthToken=$apiAuthToken, environmentKey=$environmentKey, baseUrl='$baseUrl', enableAnalytics=$enableAnalytics, analyticsFlushPeriod=$analyticsFlushPeriod)"
     }
 }
