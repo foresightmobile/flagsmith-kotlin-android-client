@@ -12,13 +12,11 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.net.URLEncoder
 
-class GetFlags(builder: Flagsmith, identity: String?, finish: IFlagArrayResult) {
+class GetFlags(builder: Flagsmith, finish: IFlagArrayResult) {
     var finish: IFlagArrayResult
-    var identity: String?
     var builder: Flagsmith
 
     init {
-        this.identity = identity
         this.finish = finish
         this.builder = builder
 

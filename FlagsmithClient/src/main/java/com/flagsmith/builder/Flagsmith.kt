@@ -5,6 +5,7 @@ import com.flagsmith.interfaces.*
 import com.flagsmith.response.Flag
 import com.flagsmith.response.ResponseIdentityFlagsAndTraits
 import com.flagsmith.response.ResponseTrait
+import okhttp3.internal.notify
 
 class Flagsmith private constructor(
     val tokenApiKey: String?,
@@ -28,7 +29,7 @@ class Flagsmith private constructor(
                 }
             })
         } else {
-            GetFlags(this, identity = identity, object : IFlagArrayResult {
+            GetFlags(this, object : IFlagArrayResult {
                 override fun success(list: ArrayList<Flag>) {
                     result(Result.success(list))
                 }
@@ -41,36 +42,62 @@ class Flagsmith private constructor(
     }
 
     fun hasFeatureFlag(forFeatureId: String, identity: String? = null, result:(Result<Boolean>) -> Unit) {
-        GetFlags(this, identity, object : IFlagArrayResult {
-            override fun success(list: ArrayList<Flag>) {
-                val found = list.find { flag -> flag.feature.name == forFeatureId }
-                val enabled = found?.enabled ?: false
-                result(Result.success(enabled))
-            }
+        if (identity != null) {
+            GetIdentityFlagsAndTraits(this, identity = identity, object: IIdentityFlagsAndTraitsResult {
+                override fun success(response: ResponseIdentityFlagsAndTraits) {
+                    val flag = response.flags.find { flag -> flag.feature.name == forFeatureId && flag.enabled }
+                    result(Result.success(flag != null))
+                }
 
-            override fun failed(str: String) {
-                result(Result.failure(IllegalStateException(str)))
-            }
-        })
+                override fun failed(e: Exception) {
+                    result(Result.failure(e))
+                }
+            })
+        } else {
+            GetFlags(this, object : IFlagArrayResult {
+                override fun success(list: ArrayList<Flag>) {
+                    val found = list.find { flag -> flag.feature.name == forFeatureId }
+                    val enabled = found?.enabled ?: false
+                    result(Result.success(enabled))
+                }
+
+                override fun failed(str: String) {
+                    result(Result.failure(IllegalStateException(str)))
+                }
+            })
+        }
     }
 
     fun getValueForFeature(searchFeatureId: String, identity: String? = null, result: (Result<Any?>) -> Unit) {
-        GetFlags(this, identity, object : IFlagArrayResult {
-            override fun success(list: ArrayList<Flag>) {
-                val found = list.find { flag -> flag.feature.name == searchFeatureId }
-                result(Result.success(found?.featureStateValue))
-            }
+        if (identity != null) {
+            GetIdentityFlagsAndTraits(this, identity = identity, object: IIdentityFlagsAndTraitsResult {
+                override fun success(response: ResponseIdentityFlagsAndTraits) {
+                    val flag = response.flags.find { flag -> flag.feature.name == searchFeatureId && flag.enabled }
+                    result(Result.success(flag?.featureStateValue))
+                }
 
-            override fun failed(str: String) {
-                result(Result.failure(IllegalStateException(str)))
-            }
-        })
+                override fun failed(e: Exception) {
+                    result(Result.failure(e))
+                }
+            })
+        } else {
+            GetFlags(this, object : IFlagArrayResult {
+                override fun success(list: ArrayList<Flag>) {
+                    val found = list.find { flag -> flag.feature.name == searchFeatureId }
+                    result(Result.success(found?.featureStateValue))
+                }
+
+                override fun failed(str: String) {
+                    result(Result.failure(IllegalStateException(str)))
+                }
+            })
+        }
     }
 
-    fun getTrait(id: String, identity: String, result: (Result<ResponseTrait>) -> Unit) {
+    fun getTrait(id: String, identity: String, result: (Result<ResponseTrait?>) -> Unit) {
         GetIdentityFlagsAndTraits(this, identity = identity, object: IIdentityFlagsAndTraitsResult {
             override fun success(response: ResponseIdentityFlagsAndTraits) {
-                val trait = response.responseTraits.first { it.trait_key == id }
+                val trait = response.responseTraits.find { it.trait_key == id }
                 result(Result.success(trait))
             }
 

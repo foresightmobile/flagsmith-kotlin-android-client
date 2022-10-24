@@ -43,6 +43,18 @@ class FeatureFlagTests {
     }
 
     @Test
+    fun testGetFeatureFlagsWithIdentity() {
+        runBlocking {
+            val result = flagsmith.getFeatureFlagsSync(identity = "person")
+            assertTrue(result.isSuccess)
+
+            val found = result.getOrThrow().find { flag -> flag.feature.name == "with-value" }
+            assertNotNull(found)
+            assertEquals(found?.featureStateValue, 756.0) //TODO: Check with Flagsmith, it's a Number on the other API
+        }
+    }
+
+    @Test
     fun testGetValueForFeatureExisting() {
         runBlocking {
             val result = flagsmith.getValueForFeatureSync("with-value", identity = null)
@@ -56,7 +68,7 @@ class FeatureFlagTests {
         runBlocking {
             val result = flagsmith.getValueForFeatureSync("with-value", identity = "person")
             assertTrue(result.isSuccess)
-            assertEquals(result.getOrThrow(), 756.0)
+            assertEquals(result.getOrThrow(), 756.0) //TODO: Check with Flagsmith, it's a Number on the other API
         }
     }
 
