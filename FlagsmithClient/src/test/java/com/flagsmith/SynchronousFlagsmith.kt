@@ -2,6 +2,7 @@ package com.flagsmith
 
 import com.flagsmith.builder.Flagsmith
 import com.flagsmith.response.Flag
+import com.flagsmith.response.IdentityFlagsAndTraits
 import com.flagsmith.response.Trait
 import com.flagsmith.response.TraitWithIdentity
 import kotlin.coroutines.resume
@@ -24,3 +25,7 @@ suspend fun Flagsmith.getTraitSync(id: String, identity: String): Result<Trait?>
 
 suspend fun Flagsmith.setTraitSync(trait: Trait, identity: String) : Result<TraitWithIdentity>
     = suspendCoroutine { cont -> this.setTrait(trait, identity) { cont.resume(it) } }
+
+suspend fun Flagsmith.getIdentitySync(identity: String): Result<IdentityFlagsAndTraits>
+    = suspendCoroutine { cont -> this.getIdentity(identity) { cont.resume(it) } }
+

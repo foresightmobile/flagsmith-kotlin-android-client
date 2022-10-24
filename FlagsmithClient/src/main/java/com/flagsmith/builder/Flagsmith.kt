@@ -2,10 +2,7 @@ package com.flagsmith.builder
 
 import com.flagsmith.api.*
 import com.flagsmith.interfaces.*
-import com.flagsmith.response.Flag
-import com.flagsmith.response.ResponseIdentityFlagsAndTraits
-import com.flagsmith.response.Trait
-import com.flagsmith.response.TraitWithIdentity
+import com.flagsmith.response.*
 
 class Flagsmith private constructor(
     val tokenApiKey: String?,
@@ -20,7 +17,7 @@ class Flagsmith private constructor(
     fun getFeatureFlags(identity: String?, result: (Result<List<Flag>>) -> Unit) {
         if (identity != null) {
             GetIdentityFlagsAndTraits(this, identity, object : IIdentityFlagsAndTraitsResult {
-                override fun success(response: ResponseIdentityFlagsAndTraits) {
+                override fun success(response: IdentityFlagsAndTraits) {
                     result(Result.success(response.flags))
                 }
 
@@ -44,7 +41,7 @@ class Flagsmith private constructor(
     fun hasFeatureFlag(forFeatureId: String, identity: String? = null, result:(Result<Boolean>) -> Unit) {
         if (identity != null) {
             GetIdentityFlagsAndTraits(this, identity = identity, object: IIdentityFlagsAndTraitsResult {
-                override fun success(response: ResponseIdentityFlagsAndTraits) {
+                override fun success(response: IdentityFlagsAndTraits) {
                     val flag = response.flags.find { flag -> flag.feature.name == forFeatureId && flag.enabled }
                     result(Result.success(flag != null))
                 }
@@ -71,7 +68,7 @@ class Flagsmith private constructor(
     fun getValueForFeature(searchFeatureId: String, identity: String? = null, result: (Result<Any?>) -> Unit) {
         if (identity != null) {
             GetIdentityFlagsAndTraits(this, identity = identity, object: IIdentityFlagsAndTraitsResult {
-                override fun success(response: ResponseIdentityFlagsAndTraits) {
+                override fun success(response: IdentityFlagsAndTraits) {
                     val flag = response.flags.find { flag -> flag.feature.name == searchFeatureId && flag.enabled }
                     result(Result.success(flag?.featureStateValue))
                 }
@@ -96,7 +93,7 @@ class Flagsmith private constructor(
 
     fun getTrait(id: String, identity: String, result: (Result<Trait?>) -> Unit) {
         GetIdentityFlagsAndTraits(this, identity = identity, object: IIdentityFlagsAndTraitsResult {
-            override fun success(response: ResponseIdentityFlagsAndTraits) {
+            override fun success(response: IdentityFlagsAndTraits) {
                 val trait = response.traits.find { it.key == id }
                 result(Result.success(trait))
             }
@@ -109,7 +106,7 @@ class Flagsmith private constructor(
 
     fun getTraits(identity: String, result: (Result<List<Trait>>) -> Unit) {
         GetIdentityFlagsAndTraits(this, identity = identity, object: IIdentityFlagsAndTraitsResult {
-            override fun success(response: ResponseIdentityFlagsAndTraits) {
+            override fun success(response: IdentityFlagsAndTraits) {
                 result(Result.success(response.traits))
             }
 
@@ -119,7 +116,7 @@ class Flagsmith private constructor(
         })
     }
 
-    fun setTrait(trait: Trait, identity: String, result:(Result<TraitWithIdentity>) -> Unit) {
+    fun setTrait(trait: Trait, identity: String, result: (Result<TraitWithIdentity>) -> Unit) {
         SetTrait(this, trait, identity, object: ITraitUpdateResult {
             override fun success(response: TraitWithIdentity) {
                 result(Result.success(response))
@@ -130,11 +127,19 @@ class Flagsmith private constructor(
             }
         })
     }
-//
-//    fun getIdentity (finish: IIdentity){
-//        Identity(this, finish)
-//    }
-//
+
+    fun getIdentity(identity: String, result: (Result<IdentityFlagsAndTraits>) -> Unit){
+        GetIdentityFlagsAndTraits(this, identity = identity, object: IIdentityFlagsAndTraitsResult {
+            override fun success(response: IdentityFlagsAndTraits) {
+                result(Result.success(response))
+            }
+
+            override fun failed(e: Exception) {
+                result(Result.failure(e))
+            }
+        })
+    }
+
 //    fun enableAnalytics(analytics: FlagsmithAnalytics) {
 //        analytics(this, )
 //    }

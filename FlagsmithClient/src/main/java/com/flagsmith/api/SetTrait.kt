@@ -3,17 +3,13 @@ package com.flagsmith.api
 import com.flagsmith.android.network.ApiManager
 import com.flagsmith.android.network.NetworkFlag
 import com.flagsmith.builder.Flagsmith
-import com.flagsmith.interfaces.IIdentityFlagsAndTraitsResult
 import com.flagsmith.interfaces.INetworkListener
 import com.flagsmith.interfaces.ITraitUpdateResult
 import com.flagsmith.response.Identity
-import com.flagsmith.response.ResponseIdentityFlagsAndTraits
 import com.flagsmith.response.Trait
 import com.flagsmith.response.TraitWithIdentity
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import org.json.JSONObject
-import java.net.URLEncoder
 
 class SetTrait(builder: Flagsmith, trait: Trait, identity: String, finish: ITraitUpdateResult) {
     var finish: ITraitUpdateResult

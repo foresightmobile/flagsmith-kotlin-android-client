@@ -61,4 +61,15 @@ class TraitsTests {
             assertEquals(result.getOrThrow().identity.identifier, "person")
         }
     }
+
+    @Test
+    fun testGetIdentity() {
+        runBlocking {
+            val result = flagsmith.getIdentitySync("person")
+            assertTrue(result.isSuccess)
+            assertTrue(result.getOrThrow().traits.isNotEmpty())
+            assertTrue(result.getOrThrow().flags.isNotEmpty())
+            assertEquals(result.getOrThrow().traits.find { trait -> trait.key == "favourite-colour" }?.value, "electric pink")
+        }
+    }
 }

@@ -6,7 +6,7 @@ import com.flagsmith.interfaces.INetworkListener
 import com.flagsmith.android.network.NetworkFlag
 import com.flagsmith.android.network.ApiManager
 import com.flagsmith.interfaces.IIdentityFlagsAndTraitsResult
-import com.flagsmith.response.ResponseIdentityFlagsAndTraits
+import com.flagsmith.response.IdentityFlagsAndTraits
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.net.URLEncoder
@@ -51,8 +51,8 @@ class GetIdentityFlagsAndTraits(builder: Flagsmith, identity: String, finish: II
     fun _parse(json: String) {
         try {
             val gson = Gson()
-            val type = object : TypeToken<ResponseIdentityFlagsAndTraits>() {}.type
-            val responseFromJson: ResponseIdentityFlagsAndTraits = gson.fromJson(json, type)
+            val type = object : TypeToken<IdentityFlagsAndTraits>() {}.type
+            val responseFromJson: IdentityFlagsAndTraits = gson.fromJson(json, type)
             println("parse() - responseFromJson: $responseFromJson")
 
             //finish
