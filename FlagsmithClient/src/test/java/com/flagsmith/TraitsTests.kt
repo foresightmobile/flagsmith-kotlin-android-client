@@ -32,4 +32,21 @@ class TraitsTests {
         }
     }
 
+    @Test
+    fun testGetTraitById() {
+        runBlocking {
+            val result = flagsmith.getTraitSync("favourite-colour", "person")
+            assertTrue(result.isSuccess)
+            assertEquals(result.getOrThrow()?.trait_value, "electric pink")
+        }
+    }
+
+    @Test
+    fun testGetUndefinedTraitById() {
+        runBlocking {
+            val result = flagsmith.getTraitSync("favourite-cricketer", "person")
+            assertTrue(result.isSuccess)
+            assertNull(result.getOrThrow())
+        }
+    }
 }

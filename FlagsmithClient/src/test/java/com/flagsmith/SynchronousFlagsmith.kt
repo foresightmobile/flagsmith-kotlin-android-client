@@ -17,3 +17,6 @@ suspend fun Flagsmith.getValueForFeatureSync(forFeatureId: String, identity: Str
 
 suspend fun Flagsmith.getTraitsSync(identity: String): Result<List<ResponseTrait>>
     = suspendCoroutine { cont -> this.getTraits(identity) { cont.resume(it) } }
+
+suspend fun Flagsmith.getTraitSync(id: String, identity: String): Result<ResponseTrait?>
+    = suspendCoroutine { cont -> this.getTrait(id, identity) { cont.resume(it)} }
