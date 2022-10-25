@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.flagsmith.builder.Flagsmith
 import com.flagsmith.response.Flag
-import com.flagmsith.R
+import com.flagmsith.android.R
 import com.flagsmith.android.adapter.FlagAdapter
 import com.flagsmith.android.adapter.FlagPickerSelect
 
@@ -57,7 +57,7 @@ class FlagListActivity : AppCompatActivity() {
         flagBuilder = Flagsmith.Builder()
             .apiAuthToken( Helper.tokenApiKey)
             .environmentKey(Helper.environmentDevelopmentKey)
-//            .identity( Helper.identifierUserKey)
+            .context(context)
             .build();
     }
 

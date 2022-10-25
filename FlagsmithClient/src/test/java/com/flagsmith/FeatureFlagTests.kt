@@ -8,6 +8,7 @@ import org.junit.Test
 class FeatureFlagTests {
 
     private val flagsmith = Flagsmith.Builder()
+        .enableAnalytics(false)
         .environmentKey("F5X4CN67ZmSB547j2k2nX4")
         .build();
 

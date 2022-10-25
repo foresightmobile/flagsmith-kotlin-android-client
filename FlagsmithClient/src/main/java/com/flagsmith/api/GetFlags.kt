@@ -26,11 +26,6 @@ class GetFlags(builder: Flagsmith, finish: IFlagArrayResult) {
     private fun startAPI() {
         val url = builder.baseUrl + "flags/"
 
-
-//        if (identity != null) {
-//           url += "?identifier=" + URLEncoder.encode(identity, "utf-8")
-//        }
-
         ApiManager(url, NetworkFlag.getNetworkHeader(builder), object : INetworkListener {
             override fun success(response: String?) {
                 _parse(response!!, finish)
@@ -39,7 +34,6 @@ class GetFlags(builder: Flagsmith, finish: IFlagArrayResult) {
             override fun failed(exception: Exception) {
                 finish.failed(exception.localizedMessage ?: "Error getting flags")
             }
-
         })
     }
 

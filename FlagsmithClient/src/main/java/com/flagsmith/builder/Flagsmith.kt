@@ -1,5 +1,6 @@
 package com.flagsmith.builder
 
+import android.content.Context
 import com.flagsmith.api.*
 import com.flagsmith.interfaces.*
 import com.flagsmith.response.*
@@ -8,9 +9,21 @@ class Flagsmith private constructor(
     val apiAuthToken: String?,
     val environmentKey: String?,
     val baseUrl: String = DEFAULT_BASE_URL,
-    val enableAnalytics: Boolean = DEFAULT_ENABLE_ANALYTICS,
-    val analyticsFlushPeriod: Int = DEFAULT_ANALYTICS_FLUSH_PERIOD_SECONDS
+    val context: Context?,
+    private val enableAnalytics: Boolean = DEFAULT_ENABLE_ANALYTICS,
+    private val analyticsFlushPeriod: Int = DEFAULT_ANALYTICS_FLUSH_PERIOD_SECONDS
 ) {
+    private var analytics: FlagsmithAnalytics? = null
+
+    init {
+        if (enableAnalytics && context != null) {
+            this.analytics = FlagsmithAnalytics(this, context, analyticsFlushPeriod)
+        }
+        if (enableAnalytics && context == null) {
+            throw IllegalArgumentException("Flagsmith requires a context to use the analytics feature")
+        }
+    }
+
     companion object {
         const val DEFAULT_BASE_URL = "https://edge.api.flagsmith.com/api/v1/"
         const val DEFAULT_ENABLE_ANALYTICS = true
@@ -46,6 +59,7 @@ class Flagsmith private constructor(
             GetIdentityFlagsAndTraits(this, identity = identity, object: IIdentityFlagsAndTraitsResult {
                 override fun success(response: IdentityFlagsAndTraits) {
                     val flag = response.flags.find { flag -> flag.feature.name == forFeatureId && flag.enabled }
+                    analytics?.trackEvent(forFeatureId)
                     result(Result.success(flag != null))
                 }
 
@@ -73,6 +87,7 @@ class Flagsmith private constructor(
             GetIdentityFlagsAndTraits(this, identity = identity, object: IIdentityFlagsAndTraitsResult {
                 override fun success(response: IdentityFlagsAndTraits) {
                     val flag = response.flags.find { flag -> flag.feature.name == searchFeatureId && flag.enabled }
+                    analytics?.trackEvent(searchFeatureId)
                     result(Result.success(flag?.featureStateValue))
                 }
 
@@ -143,12 +158,17 @@ class Flagsmith private constructor(
         })
     }
 
+    override fun toString(): String {
+        return "Flagsmith(apiAuthToken=$apiAuthToken, environmentKey=$environmentKey, baseUrl='$baseUrl', context=$context, enableAnalytics=$enableAnalytics, analyticsFlushPeriod=$analyticsFlushPeriod, analytics=$analytics)"
+    }
+
     data class Builder(
         var apiAuthToken: String? = null,
         var environmentKey: String? = null,
         var baseUrl: String? = null,
         var enableAnalytics: Boolean? = null,
-        var analyticsFlushPeriod: Int? = null
+        var analyticsFlushPeriod: Int? = null,
+        var context: Context? = null
     ) {
 
         fun apiAuthToken(v: String) = apply { this.apiAuthToken = v }
@@ -156,16 +176,17 @@ class Flagsmith private constructor(
         fun baseUrl(v: String) = apply { this.baseUrl = v }
         fun enableAnalytics(v: Boolean) = apply { this.enableAnalytics = v }
         fun analyticsFlushPeriod(v: Int) = apply { this.analyticsFlushPeriod = v }
+        fun context(v: Context) = apply { this.context = v }
 
         fun build(): Flagsmith {
             return Flagsmith(apiAuthToken = apiAuthToken, environmentKey = environmentKey,
                 baseUrl = baseUrl ?: DEFAULT_BASE_URL, enableAnalytics = enableAnalytics ?: DEFAULT_ENABLE_ANALYTICS,
-                analyticsFlushPeriod = analyticsFlushPeriod ?: DEFAULT_ANALYTICS_FLUSH_PERIOD_SECONDS
+                analyticsFlushPeriod = analyticsFlushPeriod ?: DEFAULT_ANALYTICS_FLUSH_PERIOD_SECONDS,
+                context = context
             )
         }
     }
 
-    override fun toString(): String {
-        return "Flagsmith(apiAuthToken=$apiAuthToken, environmentKey=$environmentKey, baseUrl='$baseUrl', enableAnalytics=$enableAnalytics, analyticsFlushPeriod=$analyticsFlushPeriod)"
-    }
+
+
 }

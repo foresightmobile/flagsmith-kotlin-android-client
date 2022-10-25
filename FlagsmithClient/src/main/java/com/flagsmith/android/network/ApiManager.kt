@@ -21,7 +21,7 @@ class ApiManager {
     var res: String? = null
 
     //status of request
-    var request_status = false
+    var responseStatusSuccessful: Boolean = false
     var requestFailedException: Exception? = null
     var isCompleteBefore //to called interface finish, to avoid call two times
             = false
@@ -65,8 +65,8 @@ class ApiManager {
     }
 
     private fun chooseTypeOfRequestStatus() {
-        val isValidResponse = res != null && res!!.isNotEmpty()
-        if (request_status && isValidResponse) {
+        val isValidResponse = res != null
+        if (responseStatusSuccessful && isValidResponse) {
             finishSuccess()
             return
         } else {
@@ -100,14 +100,14 @@ class ApiManager {
         try {
             val response = client!!.newCall(request!!).execute()
             res = response.body!!.string()
-            request_status = true
+            responseStatusSuccessful = response.isSuccessful
         } catch (es: SecurityException) {
-            request_status = false
+            responseStatusSuccessful = false
             requestFailedException = es
             return
         } catch (e: Exception) {
             requestFailedException = e
-            request_status = false
+            responseStatusSuccessful = false
             return
         }
     }

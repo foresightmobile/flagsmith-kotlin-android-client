@@ -10,7 +10,7 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.flagsmith.builder.Flagsmith
-import com.flagmsith.R
+import com.flagmsith.android.R
 
 import com.flagsmith.android.helper.Helper
 import com.flagsmith.response.Trait
@@ -49,15 +49,13 @@ class TraitCreateActivity : AppCompatActivity() {
 
     }
 
-
     private fun initBuilder() {
         flagBuilder = Flagsmith.Builder()
             .apiAuthToken( Helper.tokenApiKey)
             .environmentKey(Helper.environmentDevelopmentKey)
-//            .identity( Helper.identifierUserKey)
+            .context(baseContext)
             .build()
     }
-
 
     private fun setupButtonSave() {
         bt_save_trait.setOnClickListener {

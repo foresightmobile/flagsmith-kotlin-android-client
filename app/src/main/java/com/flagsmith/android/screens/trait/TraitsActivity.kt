@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.flagsmith.builder.Flagsmith
 import com.flagsmith.response.Trait
-import com.flagmsith.R
+import com.flagmsith.android.R
 import com.flagsmith.android.adapter.TraitAdapter
 import com.flagsmith.android.adapter.TraitPickerSelect
 import com.flagsmith.android.helper.Helper
@@ -69,7 +69,7 @@ class TraitsActivity : AppCompatActivity() {
         flagBuilder = Flagsmith.Builder()
             .apiAuthToken(Helper.tokenApiKey)
             .environmentKey(Helper.environmentDevelopmentKey)
-//            .identity(Helper.identity)
+            .context(context)
             .build()
     }
 

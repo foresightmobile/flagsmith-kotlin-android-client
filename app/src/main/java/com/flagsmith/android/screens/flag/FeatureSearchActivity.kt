@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.flagsmith.builder.Flagsmith
 import com.flagsmith.response.Flag
-import com.flagmsith.R
+import com.flagmsith.android.R
 import com.flagsmith.android.adapter.FlagAdapter
 import com.flagsmith.android.adapter.FlagPickerSelect
 
@@ -49,7 +49,7 @@ class FeatureSearchActivity : AppCompatActivity() {
         flagBuilder = Flagsmith.Builder()
             .apiAuthToken( Helper.tokenApiKey)
             .environmentKey(Helper.environmentDevelopmentKey)
-            // .identity( Helper.identifierUserKey)
+            .context(baseContext)
             .build()
     }
 
@@ -78,8 +78,6 @@ class FeatureSearchActivity : AppCompatActivity() {
         //keybaord
         Helper.keyboardHidden( activity )
 
-        //TODO: It
-        // flagBuilder.getFeatureFlags(searchText)
         flagBuilder.getFeatureFlags(Helper.identity) { result ->
             Helper.callViewInsideThread( activity) {
                 prg_pageFeatureSearch.visibility = View.GONE
@@ -89,13 +87,29 @@ class FeatureSearchActivity : AppCompatActivity() {
                         if (flag != null) {
                             createAdapterFlag(flag)
                         } else {
-                            Toast.makeText(this@FeatureSearchActivity, "Couldn't find feature", Toast.LENGTH_SHORT)
-                                .show()
+//                            Toast.makeText(this@FeatureSearchActivity, "Couldn't find feature", Toast.LENGTH_SHORT)
+//                                .show()
                         }
                     },
                     onFailure = { e ->
                         Toast.makeText(activity, e.localizedMessage, Toast.LENGTH_SHORT).show()
                     }
+                )
+            }
+        }
+
+        // Also check with hasFeatureFlag to ensure that we're clocking the search on the analytics
+        flagBuilder.hasFeatureFlag(searchText, Helper.identity) { result ->
+            Helper.callViewInsideThread( activity) {
+                result.fold(
+                    onSuccess = { result ->
+                        if (result) {
+                            Toast.makeText(this@FeatureSearchActivity, "Feature found", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this@FeatureSearchActivity, "Couldn't find feature with hasFeatureFlag", Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    onFailure = {}
                 )
             }
         }

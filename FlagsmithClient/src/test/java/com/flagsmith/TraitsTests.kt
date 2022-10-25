@@ -10,6 +10,7 @@ class TraitsTests {
 
     private val flagsmith = Flagsmith.Builder()
         .environmentKey("F5X4CN67ZmSB547j2k2nX4")
+        .enableAnalytics(false)
         .build();
 
     @Test

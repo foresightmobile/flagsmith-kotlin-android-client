@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.flagsmith.response.Flag
-import com.flagmsith.R
+import com.flagmsith.android.R
 
 
 interface FlagPickerSelect {
