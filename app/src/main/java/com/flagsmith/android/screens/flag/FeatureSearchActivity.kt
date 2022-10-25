@@ -109,7 +109,9 @@ class FeatureSearchActivity : AppCompatActivity() {
                             Toast.makeText(this@FeatureSearchActivity, "Couldn't find feature with hasFeatureFlag", Toast.LENGTH_SHORT).show()
                         }
                     },
-                    onFailure = {}
+                    onFailure = { e ->
+                        Toast.makeText(activity, e.localizedMessage, Toast.LENGTH_SHORT).show()
+                    }
                 )
             }
         }

@@ -32,13 +32,9 @@ class ApiManager {
         headers: HashMap<String, String>?,
         iFinish: INetworkListener?
     ) {
-
         this.url = url
         this.headers = headers
         this.iFinish = iFinish
-        // println("OkhttpNetwork - start url: $url")
-        // println("OkhttpNetwork - param:  $passBody")
-        //start
         startApi()
     }
 
@@ -80,7 +76,7 @@ class ApiManager {
         if (isCompleteBefore) return
 
         if (iFinish != null) {
-            iFinish!!.success(res)
+            iFinish?.success(res)
         }
         isCompleteBefore = true
     }
@@ -91,7 +87,7 @@ class ApiManager {
             return
         }
         if (iFinish != null) {
-            iFinish!!.failed(requestFailedException ?: IllegalStateException("Request failed for unknown reason"))
+            iFinish?.failed(requestFailedException ?: IllegalStateException("Request failed for unknown reason"))
         }
         isCompleteBefore = true
     }
