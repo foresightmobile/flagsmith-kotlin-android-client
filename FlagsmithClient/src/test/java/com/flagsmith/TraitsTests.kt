@@ -9,7 +9,7 @@ import org.junit.Test
 class TraitsTests {
 
     private val flagsmith = Flagsmith.Builder()
-        .environmentKey("F5X4CN67ZmSB547j2k2nX4")
+        .environmentKey(System.getenv("ENVIRONMENT_KEY") ?: "")
         .enableAnalytics(false)
         .build();
 

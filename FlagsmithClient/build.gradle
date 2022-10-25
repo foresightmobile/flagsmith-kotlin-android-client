@@ -29,6 +29,8 @@ android {
         jvmTarget = '1.8'
     }
     useLibrary 'android.test.mock'
+
+    ext.environmentKey = System.getenv('ENVIRONMENT_KEY') ?: ""
 }
 
 dependencies {
