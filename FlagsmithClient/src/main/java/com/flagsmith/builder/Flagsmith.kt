@@ -105,27 +105,27 @@ class Flagsmith private constructor(
     }
 
     fun setTrait(trait: Trait, identity: String, result: (Result<TraitWithIdentity>) -> Unit) {
-        SetTrait(this, trait, identity, object: ITraitUpdateResult {
-            override fun success(response: TraitWithIdentity) {
-                result(Result.success(response))
+        Fuel.request(
+            FlagsmithApi.setTrait(trait = trait, identity = identity, environmentKey = environmentKey))
+            .responseObject(TraitWithIdentityDeserializer()) { _, _, res ->
+                res.fold(
+                    success = { value -> result(Result.success(value)) },
+                    failure = { err -> result(Result.failure(err)) }
+                )
             }
-
-            override fun failed(exception: Exception) {
-                result(Result.failure(exception))
-            }
-        })
     }
 
     fun getIdentity(identity: String, result: (Result<IdentityFlagsAndTraits>) -> Unit){
-        GetIdentityFlagsAndTraits(this, identity = identity, object: IIdentityFlagsAndTraitsResult {
-            override fun success(response: IdentityFlagsAndTraits) {
-                result(Result.success(response))
+        Fuel.request(
+            FlagsmithApi.getIdentityFlagsAndTraits(identity = identity, environmentKey = environmentKey))
+            .responseObject(IdentityFlagsAndTraitsDeserializer()) { _, _, res ->
+                res.fold(
+                    success = { value ->
+                        result(Result.success(value))
+                    },
+                    failure = { err -> result(Result.failure(err)) }
+                )
             }
-
-            override fun failed(e: Exception) {
-                result(Result.failure(e))
-            }
-        })
     }
 
     override fun toString(): String {
