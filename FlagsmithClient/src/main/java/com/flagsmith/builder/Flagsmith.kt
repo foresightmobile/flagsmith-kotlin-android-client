@@ -35,11 +35,7 @@ class Flagsmith private constructor(
     fun getFeatureFlags(identity: String?, result: (Result<List<Flag>>) -> Unit) {
         if (identity != null) {
             Fuel.request(
-                FlagsmithApi.getIdentityFlagsAndTraits(
-                    identity = identity,
-                    environmentKey = environmentKey
-                )
-            )
+                FlagsmithApi.getIdentityFlagsAndTraits(identity = identity, environmentKey = environmentKey))
                 .responseObject(IdentityFlagsAndTraitsDeserializer()) { _, _, res ->
                     res.fold(
                         success = { value -> result(Result.success(value.flags)) },
@@ -58,83 +54,54 @@ class Flagsmith private constructor(
     }
 
     fun hasFeatureFlag(forFeatureId: String, identity: String? = null, result:(Result<Boolean>) -> Unit) {
-        if (identity != null) {
-            GetIdentityFlagsAndTraits(this, identity = identity, object: IIdentityFlagsAndTraitsResult {
-                override fun success(response: IdentityFlagsAndTraits) {
-                    val flag = response.flags.find { flag -> flag.feature.name == forFeatureId && flag.enabled }
+        getFeatureFlags(identity) { result ->
+            result.fold(
+                onSuccess = { flags ->
+                    val foundFlag = flags.find { flag -> flag.feature.name == forFeatureId && flag.enabled }
                     analytics?.trackEvent(forFeatureId)
-                    result(Result.success(flag != null))
-                }
-
-                override fun failed(e: Exception) {
-                    result(Result.failure(e))
-                }
-            })
-        } else {
-            GetFlags(this, object : IFlagArrayResult {
-                override fun success(list: ArrayList<Flag>) {
-                    val found = list.find { flag -> flag.feature.name == forFeatureId }
-                    val enabled = found?.enabled ?: false
-                    result(Result.success(enabled))
-                }
-
-                override fun failed(str: String) {
-                    result(Result.failure(IllegalStateException(str)))
-                }
-            })
+                    result(Result.success(foundFlag != null))
+                },
+                onFailure = { err -> result(Result.failure(err))}
+            )
         }
     }
 
     fun getValueForFeature(searchFeatureId: String, identity: String? = null, result: (Result<Any?>) -> Unit) {
-        if (identity != null) {
-            GetIdentityFlagsAndTraits(this, identity = identity, object: IIdentityFlagsAndTraitsResult {
-                override fun success(response: IdentityFlagsAndTraits) {
-                    val flag = response.flags.find { flag -> flag.feature.name == searchFeatureId && flag.enabled }
+        getFeatureFlags(identity) { result ->
+            result.fold(
+                onSuccess = { flags ->
+                    val foundFlag = flags.find { flag -> flag.feature.name == searchFeatureId && flag.enabled }
                     analytics?.trackEvent(searchFeatureId)
-                    result(Result.success(flag?.featureStateValue))
-                }
-
-                override fun failed(e: Exception) {
-                    result(Result.failure(e))
-                }
-            })
-        } else {
-            GetFlags(this, object : IFlagArrayResult {
-                override fun success(list: ArrayList<Flag>) {
-                    val found = list.find { flag -> flag.feature.name == searchFeatureId }
-                    result(Result.success(found?.featureStateValue))
-                }
-
-                override fun failed(str: String) {
-                    result(Result.failure(IllegalStateException(str)))
-                }
-            })
+                    result(Result.success(foundFlag?.featureStateValue))
+                },
+                onFailure = { err -> result(Result.failure(err))}
+            )
         }
     }
 
     fun getTrait(id: String, identity: String, result: (Result<Trait?>) -> Unit) {
-        GetIdentityFlagsAndTraits(this, identity = identity, object: IIdentityFlagsAndTraitsResult {
-            override fun success(response: IdentityFlagsAndTraits) {
-                val trait = response.traits.find { it.key == id }
-                result(Result.success(trait))
+        Fuel.request(
+            FlagsmithApi.getIdentityFlagsAndTraits(identity = identity, environmentKey = environmentKey))
+            .responseObject(IdentityFlagsAndTraitsDeserializer()) { _, _, res ->
+                res.fold(
+                    success = { value ->
+                                val trait = value.traits.find { it.key == id }
+                                result(Result.success(trait))
+                              },
+                    failure = { err -> result(Result.failure(err)) }
+                )
             }
-
-            override fun failed(e: Exception) {
-                result(Result.failure(e))
-            }
-        })
     }
 
     fun getTraits(identity: String, result: (Result<List<Trait>>) -> Unit) {
-        GetIdentityFlagsAndTraits(this, identity = identity, object: IIdentityFlagsAndTraitsResult {
-            override fun success(response: IdentityFlagsAndTraits) {
-                result(Result.success(response.traits))
+        Fuel.request(
+            FlagsmithApi.getIdentityFlagsAndTraits(identity = identity, environmentKey = environmentKey))
+            .responseObject(IdentityFlagsAndTraitsDeserializer()) { _, _, res ->
+                res.fold(
+                    success = { value -> result(Result.success(value.traits)) },
+                    failure = { err -> result(Result.failure(err)) }
+                )
             }
-
-            override fun failed(e: Exception) {
-                result(Result.failure(e))
-            }
-        })
     }
 
     fun setTrait(trait: Trait, identity: String, result: (Result<TraitWithIdentity>) -> Unit) {
