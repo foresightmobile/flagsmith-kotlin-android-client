@@ -1,13 +1,15 @@
 package com.flagsmith.builder
 
 import android.content.Context
+import com.flagsmith.android.network.FlagsmithApi
 import com.flagsmith.api.*
 import com.flagsmith.interfaces.*
 import com.flagsmith.response.*
+import com.github.kittinunf.fuel.Fuel
 
 class Flagsmith private constructor(
     val apiAuthToken: String?,
-    val environmentKey: String?,
+    val environmentKey: String,
     val baseUrl: String = DEFAULT_BASE_URL,
     val context: Context?,
     private val enableAnalytics: Boolean = DEFAULT_ENABLE_ANALYTICS,
@@ -32,25 +34,26 @@ class Flagsmith private constructor(
 
     fun getFeatureFlags(identity: String?, result: (Result<List<Flag>>) -> Unit) {
         if (identity != null) {
-            GetIdentityFlagsAndTraits(this, identity, object : IIdentityFlagsAndTraitsResult {
-                override fun success(response: IdentityFlagsAndTraits) {
-                    result(Result.success(response.flags))
+            Fuel.request(
+                FlagsmithApi.getIdentityFlagsAndTraits(
+                    identity = identity,
+                    environmentKey = environmentKey
+                )
+            )
+                .responseObject(IdentityFlagsAndTraitsDeserializer()) { _, _, res ->
+                    res.fold(
+                        success = { value -> result(Result.success(value.flags)) },
+                        failure = { err -> result(Result.failure(err)) }
+                    )
                 }
-
-                override fun failed(e: Exception) {
-                    result(Result.failure(e))
-                }
-            })
         } else {
-            GetFlags(this, object : IFlagArrayResult {
-                override fun success(list: ArrayList<Flag>) {
-                    result(Result.success(list))
+            Fuel.request(FlagsmithApi.getFlags(environmentKey = environmentKey))
+                .responseObject(FlagListDeserializer()) { _, _, res ->
+                    res.fold(
+                        success = { value -> result(Result.success(value)) },
+                        failure = { err -> result(Result.failure(err)) }
+                    )
                 }
-
-                override fun failed(str: String) {
-                    result(Result.failure(IllegalStateException(str)))
-                }
-            })
         }
     }
 
@@ -164,7 +167,7 @@ class Flagsmith private constructor(
 
     data class Builder(
         var apiAuthToken: String? = null,
-        var environmentKey: String? = null,
+        var environmentKey: String,
         var baseUrl: String? = null,
         var enableAnalytics: Boolean? = null,
         var analyticsFlushPeriod: Int? = null,

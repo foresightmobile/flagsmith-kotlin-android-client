@@ -4,11 +4,12 @@ import com.flagsmith.builder.Flagsmith
 import com.flagsmith.response.Trait
 import junit.framework.Assert.*
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
 
 class TraitsTests {
 
-    private val flagsmith = Flagsmith.Builder()
+    private val flagsmith = Flagsmith.Builder(environmentKey = System.getenv("ENVIRONMENT_KEY") ?: "")
         .environmentKey(System.getenv("ENVIRONMENT_KEY") ?: "")
         .enableAnalytics(false)
         .build();
