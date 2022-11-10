@@ -44,8 +44,6 @@ class FlagListActivity : AppCompatActivity() {
 
         initBuilder()
         setupToolbar()
-        checkWithHasFeatureFlag()
-        checkWithGetValueForFeature()
     }
 
     private fun setupToolbar() {
@@ -55,29 +53,6 @@ class FlagListActivity : AppCompatActivity() {
 
     private fun initBuilder() {
         flagsmith = Flagsmith(environmentKey = Helper.environmentDevelopmentKey, context = context)
-    }
-
-    private fun checkWithHasFeatureFlag() {
-        println("************************* checkWithHasFeatureFlag *************************")
-        flagsmith.hasFeatureFlag("no-value") {
-            println("hasFeatureFlag 'no-value' $it")
-        }
-        flagsmith.hasFeatureFlag("not-found") {
-            println("hasFeatureFlag 'not-found' $it")
-        }
-    }
-
-    private fun checkWithGetValueForFeature() {
-        println("************************* checkWithGetValueForFeature *************************")
-        flagsmith.getValueForFeature("no-value") {
-            println("getValueForFeature 'no-value' $it")
-        }
-        flagsmith.getValueForFeature("not-found") {
-            println("getValueForFeature 'not-found' $it")
-        }
-        flagsmith.getValueForFeature("with-value") {
-            println("getValueForFeature 'with-value' $it")
-        }
     }
 
     private fun getAllData() {

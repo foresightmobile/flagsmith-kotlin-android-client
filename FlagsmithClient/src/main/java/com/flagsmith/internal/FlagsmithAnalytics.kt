@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import com.flagsmith.Flagsmith
 import com.github.kittinunf.fuel.Fuel
 import org.json.JSONException
@@ -21,13 +22,12 @@ class FlagsmithAnalytics constructor(
 
     private val timerRunnable = object : Runnable {
         override fun run() {
-            println("Handler called on main thread")
             if (currentEvents.isNotEmpty()) {
                 Fuel.request(FlagsmithApi.postAnalytics(environmentKey = environmentKey, eventMap = currentEvents, baseUrl = baseUrl))
                     .response { _, _, res ->
                         res.fold(
-                            success = { println("Posted analytics for ${currentEvents.size} events"); resetMap() },
-                            failure = { err -> println("Failed posting analytics - ${err.localizedMessage}") }
+                            success = { resetMap() },
+                            failure = { err -> Log.e("FLAGSMITH","Failed posting analytics - ${err.localizedMessage}") }
                         )
                     }
             }
@@ -80,7 +80,7 @@ class FlagsmithAnalytics constructor(
                 }
             }
         } catch (e: JSONException) {
-            e.printStackTrace()
+            Log.e("FLAGSMITH", "Exception in getMap Analytics - ${e.stackTraceToString()}")
         }
         return outputMap
     }
