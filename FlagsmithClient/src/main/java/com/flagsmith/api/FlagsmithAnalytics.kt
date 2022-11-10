@@ -5,8 +5,10 @@ import android.content.SharedPreferences
 import android.os.Handler
 import android.os.Looper
 import com.flagsmith.android.network.AnalyticsTrackFlagAPI
+import com.flagsmith.android.network.FlagsmithApi
 import com.flagsmith.builder.Flagsmith
 import com.flagsmith.interfaces.IEventUpdate
+import com.github.kittinunf.fuel.Fuel
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -14,7 +16,6 @@ class FlagsmithAnalytics constructor(
     private val builder: Flagsmith,
     private val context: Context,
     private val flushPeriod: Int,
-
 ) {
     private val applicationContext: Context = context.applicationContext
     private val currentEvents = getMap()
@@ -24,14 +25,13 @@ class FlagsmithAnalytics constructor(
         override fun run() {
             println("Handler called on main thread")
             if (currentEvents.isNotEmpty()) {
-                AnalyticsTrackFlagAPI(builder, currentEvents, object : IEventUpdate {
-                    override fun success() {
-                        resetMap()
+                Fuel.request(FlagsmithApi.postAnalytics(environmentKey = builder.environmentKey, eventMap = currentEvents))
+                    .response { _, _, res ->
+                        res.fold(
+                            success = { println("Posted analytics for ${currentEvents.size} events"); resetMap() },
+                            failure = { err -> println("Failed posting analytics - ${err.localizedMessage}") }
+                        )
                     }
-                    override fun failed(exception: Exception) {
-                        println("Failed posting analytics - ${exception.localizedMessage}")
-                    }
-                })
             }
             timerHandler.postDelayed(this, flushPeriod.toLong() * 1000)
         }

@@ -10,12 +10,14 @@ import com.github.kittinunf.fuel.util.FuelRouting
 import com.google.gson.Gson
 import okhttp3.internal.toImmutableMap
 
+//TODO: Updatable basePath
 sealed class FlagsmithApi(
     private val environmentKey: String
     ): FuelRouting {
     class getIdentityFlagsAndTraits(val identity: String, environmentKey: String): FlagsmithApi(environmentKey)
     class getFlags(environmentKey: String): FlagsmithApi(environmentKey)
     class setTrait(val trait: Trait, val identity: String, environmentKey: String): FlagsmithApi(environmentKey)
+    class postAnalytics(val eventMap: Map<String, Int?>, environmentKey: String): FlagsmithApi(environmentKey)
 
     override val basePath = "https://edge.api.flagsmith.com/api/v1"
 
@@ -23,6 +25,7 @@ sealed class FlagsmithApi(
         get() {
             return when(this) {
                 is setTrait -> Gson().toJson(TraitWithIdentity(key = trait.key, value = trait.value, identity = Identity(identity)))
+                is postAnalytics -> Gson().toJson(eventMap)
                 else -> null
             }
         }
@@ -45,6 +48,7 @@ sealed class FlagsmithApi(
                 is getIdentityFlagsAndTraits -> Method.GET
                 is getFlags -> Method.GET
                 is setTrait -> Method.POST
+                is postAnalytics -> Method.POST
             }
         }
 
@@ -63,6 +67,7 @@ sealed class FlagsmithApi(
                 is getIdentityFlagsAndTraits -> "/identities"
                 is getFlags -> "/flags"
                 is setTrait -> "/traits"
+                is postAnalytics -> "/analytics/flags"
             }
         }
 }
