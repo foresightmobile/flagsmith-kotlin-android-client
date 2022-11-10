@@ -54,8 +54,8 @@ class Flagsmith private constructor(
     }
 
     fun hasFeatureFlag(forFeatureId: String, identity: String? = null, result:(Result<Boolean>) -> Unit) {
-        getFeatureFlags(identity) { result ->
-            result.fold(
+        getFeatureFlags(identity) { res ->
+            res.fold(
                 onSuccess = { flags ->
                     val foundFlag = flags.find { flag -> flag.feature.name == forFeatureId && flag.enabled }
                     analytics?.trackEvent(forFeatureId)
@@ -67,8 +67,8 @@ class Flagsmith private constructor(
     }
 
     fun getValueForFeature(searchFeatureId: String, identity: String? = null, result: (Result<Any?>) -> Unit) {
-        getFeatureFlags(identity) { result ->
-            result.fold(
+        getFeatureFlags(identity) { res ->
+            res.fold(
                 onSuccess = { flags ->
                     val foundFlag = flags.find { flag -> flag.feature.name == searchFeatureId && flag.enabled }
                     analytics?.trackEvent(searchFeatureId)

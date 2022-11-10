@@ -50,7 +50,7 @@ class TraitCreateActivity : AppCompatActivity() {
     }
 
     private fun initBuilder() {
-        flagBuilder = Flagsmith.Builder()
+        flagBuilder = Flagsmith.Builder(environmentKey = Helper.environmentDevelopmentKey)
             .apiAuthToken( Helper.tokenApiKey)
             .environmentKey(Helper.environmentDevelopmentKey)
             .context(baseContext)

@@ -54,9 +54,9 @@ class FlagListActivity : AppCompatActivity() {
 
 
     private fun initBuilder() {
-        flagBuilder = Flagsmith.Builder()
+        flagBuilder = Flagsmith.Builder(environmentKey = Helper.environmentDevelopmentKey)
             .apiAuthToken( Helper.tokenApiKey)
-            .environmentKey(Helper.environmentDevelopmentKey)
+            .environmentKey("F5X4CN67ZmSB547j2k2nX4")
             .context(context)
             .build();
     }
