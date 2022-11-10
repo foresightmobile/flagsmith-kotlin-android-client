@@ -42,10 +42,6 @@ dependencies {
     // Local library project, easiest for development
     implementation(project(":FlagSmithClient"))
 
-    // Foresight forks for testing Jitpack distribution
-    // implementation 'com.github.foresightmobile:flagsmith-kotlin-android-client:FlagSmithClient:release_1.0.0-SNAPSHOT'
-    // implementation 'com.github.foresightmobile:flagsmith-kotlin-android-client:release_1.0.0-SNAPSHOT'
-
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
