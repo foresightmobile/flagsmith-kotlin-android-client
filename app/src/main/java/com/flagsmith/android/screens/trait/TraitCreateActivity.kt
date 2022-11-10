@@ -9,11 +9,11 @@ import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.flagsmith.builder.Flagsmith
+import com.flagsmith.Flagsmith
 import com.flagmsith.android.R
 
 import com.flagsmith.android.helper.Helper
-import com.flagsmith.response.Trait
+import com.flagsmith.entities.Trait
 
 
 class TraitCreateActivity : AppCompatActivity() {

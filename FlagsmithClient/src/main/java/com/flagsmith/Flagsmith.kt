@@ -1,10 +1,9 @@
-package com.flagsmith.builder
+package com.flagsmith
 
 import android.content.Context
-import com.flagsmith.android.network.FlagsmithApi
-import com.flagsmith.api.*
-import com.flagsmith.interfaces.*
-import com.flagsmith.response.*
+import com.flagsmith.internal.FlagsmithApi
+import com.flagsmith.internal.*
+import com.flagsmith.entities.*
 import com.github.kittinunf.fuel.Fuel
 
 class Flagsmith private constructor(

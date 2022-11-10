@@ -1,8 +1,8 @@
-package com.flagsmith.android.network
+package com.flagsmith.internal
 
-import com.flagsmith.response.Identity
-import com.flagsmith.response.Trait
-import com.flagsmith.response.TraitWithIdentity
+import com.flagsmith.entities.Identity
+import com.flagsmith.entities.Trait
+import com.flagsmith.entities.TraitWithIdentity
 import com.github.kittinunf.fuel.core.HeaderValues
 import com.github.kittinunf.fuel.core.Method
 import com.github.kittinunf.fuel.core.Parameters

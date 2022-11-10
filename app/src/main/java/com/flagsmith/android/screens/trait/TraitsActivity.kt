@@ -5,15 +5,14 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Environment
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.flagsmith.builder.Flagsmith
-import com.flagsmith.response.Trait
+import com.flagsmith.Flagsmith
+import com.flagsmith.entities.Trait
 import com.flagmsith.android.R
 import com.flagsmith.android.adapter.TraitAdapter
 import com.flagsmith.android.adapter.TraitPickerSelect

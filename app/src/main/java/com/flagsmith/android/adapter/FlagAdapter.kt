@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
-import com.flagsmith.response.Flag
+import com.flagsmith.entities.Flag
 import com.flagmsith.android.R
 
 

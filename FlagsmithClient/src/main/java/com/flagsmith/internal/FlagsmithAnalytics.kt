@@ -1,13 +1,10 @@
-package com.flagsmith.api
+package com.flagsmith.internal
 
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Handler
 import android.os.Looper
-import com.flagsmith.android.network.AnalyticsTrackFlagAPI
-import com.flagsmith.android.network.FlagsmithApi
-import com.flagsmith.builder.Flagsmith
-import com.flagsmith.interfaces.IEventUpdate
+import com.flagsmith.Flagsmith
 import com.github.kittinunf.fuel.Fuel
 import org.json.JSONException
 import org.json.JSONObject

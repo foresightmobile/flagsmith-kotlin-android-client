@@ -1,6 +1,5 @@
 package com.flagsmith
 
-import com.flagsmith.builder.Flagsmith
 import junit.framework.Assert.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -8,7 +7,7 @@ import org.junit.Test
 class FeatureFlagTests {
 
     private val flagsmith = Flagsmith.Builder(environmentKey = System.getenv("ENVIRONMENT_KEY") ?: "")
-        .enableAnalytics(true)
+        .enableAnalytics(false)
         .environmentKey(System.getenv("ENVIRONMENT_KEY") ?: "")
         .build();
 

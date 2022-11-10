@@ -6,8 +6,6 @@ import android.widget.TextView
 import com.flagmsith.android.R
 
 class ToolbarSimple(activity: Activity, resIdInclude: Int, var title: String) {
-
-
     var include: View
 
     init {

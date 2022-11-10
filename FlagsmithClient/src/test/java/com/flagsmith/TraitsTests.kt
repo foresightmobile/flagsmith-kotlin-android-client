@@ -1,10 +1,8 @@
 package com.flagsmith
 
-import com.flagsmith.builder.Flagsmith
-import com.flagsmith.response.Trait
+import com.flagsmith.entities.Trait
 import junit.framework.Assert.*
 import kotlinx.coroutines.runBlocking
-import org.junit.Rule
 import org.junit.Test
 
 class TraitsTests {

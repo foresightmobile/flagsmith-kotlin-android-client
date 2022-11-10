@@ -7,8 +7,8 @@ import android.view.View
 import android.widget.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.flagsmith.builder.Flagsmith
-import com.flagsmith.response.Flag
+import com.flagsmith.Flagsmith
+import com.flagsmith.entities.Flag
 import com.flagmsith.android.R
 import com.flagsmith.android.adapter.FlagAdapter
 import com.flagsmith.android.adapter.FlagPickerSelect

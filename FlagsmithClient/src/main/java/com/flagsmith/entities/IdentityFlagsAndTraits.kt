@@ -1,4 +1,4 @@
-package com.flagsmith.response
+package com.flagsmith.entities
 
 import com.github.kittinunf.fuel.core.ResponseDeserializable
 import com.google.gson.Gson
