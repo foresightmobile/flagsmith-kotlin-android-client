@@ -19,9 +19,7 @@ import com.flagsmith.entities.Trait
 class TraitCreateActivity : AppCompatActivity() {
 
     lateinit var activity  : Activity
-
-
-    lateinit var flagBuilder : Flagsmith
+    lateinit var flagsmith : Flagsmith
 
     //views
     lateinit var prg_pageTraitCreate : ProgressBar
@@ -50,11 +48,7 @@ class TraitCreateActivity : AppCompatActivity() {
     }
 
     private fun initBuilder() {
-        flagBuilder = Flagsmith.Builder(environmentKey = Helper.environmentDevelopmentKey)
-            .apiAuthToken( Helper.tokenApiKey)
-            .environmentKey(Helper.environmentDevelopmentKey)
-            .context(baseContext)
-            .build()
+        flagsmith = Flagsmith(environmentKey = Helper.environmentDevelopmentKey, context = baseContext)
     }
 
     private fun setupButtonSave() {
@@ -88,7 +82,7 @@ class TraitCreateActivity : AppCompatActivity() {
         //progress start
         prg_pageTraitCreate.visibility = View.VISIBLE
 
-        flagBuilder.setTrait(Trait(key = key, value = value), Helper.identity) { result ->
+        flagsmith.setTrait(Trait(key = key, value = value), Helper.identity) { result ->
             Helper.callViewInsideThread(activity) {
                 prg_pageTraitCreate.visibility = View.GONE
                 result.fold(

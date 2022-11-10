@@ -6,10 +6,7 @@ import org.junit.Test
 
 class FeatureFlagTests {
 
-    private val flagsmith = Flagsmith.Builder(environmentKey = System.getenv("ENVIRONMENT_KEY") ?: "")
-        .enableAnalytics(false)
-        .environmentKey(System.getenv("ENVIRONMENT_KEY") ?: "")
-        .build();
+    private val flagsmith = Flagsmith(environmentKey = System.getenv("ENVIRONMENT_KEY") ?: "", enableAnalytics = false)
 
     @Test
     fun testHasFeatureFlagWithFlag() {

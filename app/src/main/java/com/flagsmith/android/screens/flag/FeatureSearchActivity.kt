@@ -24,7 +24,7 @@ class FeatureSearchActivity : AppCompatActivity() {
     lateinit var prg_pageFeatureSearch : ProgressBar
     lateinit var rv_featureResult : RecyclerView
 
-    lateinit var flagBuilder : Flagsmith
+    lateinit var flagsmith : Flagsmith
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,13 +46,8 @@ class FeatureSearchActivity : AppCompatActivity() {
     }
 
     private fun initBuilder() {
-        flagBuilder = Flagsmith.Builder(environmentKey = Helper.environmentDevelopmentKey)
-            .apiAuthToken( Helper.tokenApiKey)
-            .environmentKey(Helper.environmentDevelopmentKey)
-            .context(baseContext)
-            .build()
+        flagsmith = Flagsmith(environmentKey = Helper.environmentDevelopmentKey, context = baseContext)
     }
-
 
     private fun setupButtonSearch() {
         bt_searchFeature.setOnClickListener{
@@ -78,7 +73,7 @@ class FeatureSearchActivity : AppCompatActivity() {
         //keybaord
         Helper.keyboardHidden( activity )
 
-        flagBuilder.getFeatureFlags(Helper.identity) { result ->
+        flagsmith.getFeatureFlags(Helper.identity) { result ->
             Helper.callViewInsideThread( activity) {
                 prg_pageFeatureSearch.visibility = View.GONE
                 result.fold(
@@ -99,7 +94,7 @@ class FeatureSearchActivity : AppCompatActivity() {
         }
 
         // Also check with hasFeatureFlag to ensure that we're clocking the search on the analytics
-        flagBuilder.hasFeatureFlag(searchText, Helper.identity) { result ->
+        flagsmith.hasFeatureFlag(searchText, Helper.identity) { result ->
             Helper.callViewInsideThread( activity) {
                 result.fold(
                     onSuccess = { result ->

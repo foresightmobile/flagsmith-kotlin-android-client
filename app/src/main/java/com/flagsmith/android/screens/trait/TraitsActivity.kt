@@ -22,7 +22,7 @@ import com.flagsmith.android.toolbar.ToolbarSimple
 
 class TraitsActivity : AppCompatActivity() {
 
-    lateinit var flagBuilder: Flagsmith
+    lateinit var flagsmith: Flagsmith
 
     lateinit var activity: Activity
     lateinit var context: Context
@@ -59,25 +59,18 @@ class TraitsActivity : AppCompatActivity() {
         }
     }
 
-
     private fun setupToolbar() {
         ToolbarSimple(this, R.id.toolbarTraitsList, "Traits")
     }
 
-
     private fun initBuilder() {
-        flagBuilder = Flagsmith.Builder(environmentKey = Helper.environmentDevelopmentKey)
-            .apiAuthToken(Helper.tokenApiKey)
-            .environmentKey(Helper.environmentDevelopmentKey)
-            .context(context)
-            .build()
+        flagsmith = Flagsmith(environmentKey = Helper.environmentDevelopmentKey, context = context)
     }
-
 
     private fun getAllData() {
         prgTraits.visibility = View.VISIBLE
 
-        flagBuilder.getTraits(Helper.identity) { result ->
+        flagsmith.getTraits(Helper.identity) { result ->
             Helper.callViewInsideThread(activity) {
                 prgTraits.visibility = View.GONE
                 result.fold(
@@ -98,7 +91,6 @@ class TraitsActivity : AppCompatActivity() {
         }
     }
 
-
     private fun createAdapterFlag(list: List<Trait>) {
         val manager = LinearLayoutManager(context)
         manager.orientation = LinearLayoutManager.VERTICAL
@@ -110,7 +102,6 @@ class TraitsActivity : AppCompatActivity() {
         })
         rvTraits.adapter = customAdapter
     }
-
 
     override fun onResume() {
         super.onResume()

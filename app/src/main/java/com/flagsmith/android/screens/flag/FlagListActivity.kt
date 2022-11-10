@@ -21,7 +21,7 @@ import com.flagsmith.android.toolbar.ToolbarSimple
 
 class FlagListActivity : AppCompatActivity() {
 
-    lateinit var flagBuilder : Flagsmith
+    lateinit var flagsmith : Flagsmith
 
     lateinit var activity: Activity
     lateinit var context : Context;
@@ -54,32 +54,28 @@ class FlagListActivity : AppCompatActivity() {
 
 
     private fun initBuilder() {
-        flagBuilder = Flagsmith.Builder(environmentKey = Helper.environmentDevelopmentKey)
-            .apiAuthToken( Helper.tokenApiKey)
-            .environmentKey("F5X4CN67ZmSB547j2k2nX4")
-            .context(context)
-            .build();
+        flagsmith = Flagsmith(environmentKey = Helper.environmentDevelopmentKey, context = context)
     }
 
     private fun checkWithHasFeatureFlag() {
         println("************************* checkWithHasFeatureFlag *************************")
-        flagBuilder.hasFeatureFlag("no-value") {
+        flagsmith.hasFeatureFlag("no-value") {
             println("hasFeatureFlag 'no-value' $it")
         }
-        flagBuilder.hasFeatureFlag("not-found") {
+        flagsmith.hasFeatureFlag("not-found") {
             println("hasFeatureFlag 'not-found' $it")
         }
     }
 
     private fun checkWithGetValueForFeature() {
         println("************************* checkWithGetValueForFeature *************************")
-        flagBuilder.getValueForFeature("no-value") {
+        flagsmith.getValueForFeature("no-value") {
             println("getValueForFeature 'no-value' $it")
         }
-        flagBuilder.getValueForFeature("not-found") {
+        flagsmith.getValueForFeature("not-found") {
             println("getValueForFeature 'not-found' $it")
         }
-        flagBuilder.getValueForFeature("with-value") {
+        flagsmith.getValueForFeature("with-value") {
             println("getValueForFeature 'with-value' $it")
         }
     }
@@ -89,7 +85,7 @@ class FlagListActivity : AppCompatActivity() {
         prg_flags.visibility = View.VISIBLE
 
         //listener
-        flagBuilder.getFeatureFlags(Helper.identity) { result ->
+        flagsmith.getFeatureFlags(Helper.identity) { result ->
             Helper.callViewInsideThread( activity) {
                 prg_flags.visibility = View.GONE
 

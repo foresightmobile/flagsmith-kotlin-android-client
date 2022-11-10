@@ -7,10 +7,7 @@ import org.junit.Test
 
 class TraitsTests {
 
-    private val flagsmith = Flagsmith.Builder(environmentKey = System.getenv("ENVIRONMENT_KEY") ?: "")
-        .environmentKey(System.getenv("ENVIRONMENT_KEY") ?: "")
-        .enableAnalytics(false)
-        .build();
+    private val flagsmith = Flagsmith(environmentKey = System.getenv("ENVIRONMENT_KEY") ?: "", enableAnalytics = false)
 
     @Test
     fun testGetTraitsDefinedForPerson() {

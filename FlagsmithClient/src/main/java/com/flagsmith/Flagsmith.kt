@@ -6,19 +6,20 @@ import com.flagsmith.internal.*
 import com.flagsmith.entities.*
 import com.github.kittinunf.fuel.Fuel
 
-class Flagsmith private constructor(
-    val apiAuthToken: String?,
-    val environmentKey: String,
-    val baseUrl: String = DEFAULT_BASE_URL,
-    val context: Context?,
+class Flagsmith constructor(
+    private val environmentKey: String,
+    val baseUrlOverride: String? = null,
+    val context: Context? = null,
     private val enableAnalytics: Boolean = DEFAULT_ENABLE_ANALYTICS,
     private val analyticsFlushPeriod: Int = DEFAULT_ANALYTICS_FLUSH_PERIOD_SECONDS
 ) {
     private var analytics: FlagsmithAnalytics? = null
+    private val baseUrl: String
+        get() = baseUrlOverride ?: "https://edge.api.flagsmith.com/api/v1"
 
     init {
         if (enableAnalytics && context != null) {
-            this.analytics = FlagsmithAnalytics(this, context, analyticsFlushPeriod)
+            this.analytics = FlagsmithAnalytics(environmentKey, context, analyticsFlushPeriod, baseUrl)
         }
         if (enableAnalytics && context == null) {
             throw IllegalArgumentException("Flagsmith requires a context to use the analytics feature")
@@ -26,7 +27,6 @@ class Flagsmith private constructor(
     }
 
     companion object {
-        const val DEFAULT_BASE_URL = "https://edge.api.flagsmith.com/api/v1/"
         const val DEFAULT_ENABLE_ANALYTICS = true
         const val DEFAULT_ANALYTICS_FLUSH_PERIOD_SECONDS = 10
     }
@@ -34,7 +34,7 @@ class Flagsmith private constructor(
     fun getFeatureFlags(identity: String?, result: (Result<List<Flag>>) -> Unit) {
         if (identity != null) {
             Fuel.request(
-                FlagsmithApi.getIdentityFlagsAndTraits(identity = identity, environmentKey = environmentKey))
+                FlagsmithApi.getIdentityFlagsAndTraits(identity = identity, environmentKey = environmentKey, baseUrl = baseUrl))
                 .responseObject(IdentityFlagsAndTraitsDeserializer()) { _, _, res ->
                     res.fold(
                         success = { value -> result(Result.success(value.flags)) },
@@ -42,7 +42,7 @@ class Flagsmith private constructor(
                     )
                 }
         } else {
-            Fuel.request(FlagsmithApi.getFlags(environmentKey = environmentKey))
+            Fuel.request(FlagsmithApi.getFlags(environmentKey = environmentKey, baseUrl = baseUrl))
                 .responseObject(FlagListDeserializer()) { _, _, res ->
                     res.fold(
                         success = { value -> result(Result.success(value)) },
@@ -80,7 +80,7 @@ class Flagsmith private constructor(
 
     fun getTrait(id: String, identity: String, result: (Result<Trait?>) -> Unit) {
         Fuel.request(
-            FlagsmithApi.getIdentityFlagsAndTraits(identity = identity, environmentKey = environmentKey))
+            FlagsmithApi.getIdentityFlagsAndTraits(identity = identity, environmentKey = environmentKey, baseUrl = baseUrl))
             .responseObject(IdentityFlagsAndTraitsDeserializer()) { _, _, res ->
                 res.fold(
                     success = { value ->
@@ -94,7 +94,7 @@ class Flagsmith private constructor(
 
     fun getTraits(identity: String, result: (Result<List<Trait>>) -> Unit) {
         Fuel.request(
-            FlagsmithApi.getIdentityFlagsAndTraits(identity = identity, environmentKey = environmentKey))
+            FlagsmithApi.getIdentityFlagsAndTraits(identity = identity, environmentKey = environmentKey, baseUrl = baseUrl))
             .responseObject(IdentityFlagsAndTraitsDeserializer()) { _, _, res ->
                 res.fold(
                     success = { value -> result(Result.success(value.traits)) },
@@ -105,7 +105,7 @@ class Flagsmith private constructor(
 
     fun setTrait(trait: Trait, identity: String, result: (Result<TraitWithIdentity>) -> Unit) {
         Fuel.request(
-            FlagsmithApi.setTrait(trait = trait, identity = identity, environmentKey = environmentKey))
+            FlagsmithApi.setTrait(trait = trait, identity = identity, environmentKey = environmentKey, baseUrl = baseUrl))
             .responseObject(TraitWithIdentityDeserializer()) { _, _, res ->
                 res.fold(
                     success = { value -> result(Result.success(value)) },
@@ -116,7 +116,7 @@ class Flagsmith private constructor(
 
     fun getIdentity(identity: String, result: (Result<IdentityFlagsAndTraits>) -> Unit){
         Fuel.request(
-            FlagsmithApi.getIdentityFlagsAndTraits(identity = identity, environmentKey = environmentKey))
+            FlagsmithApi.getIdentityFlagsAndTraits(identity = identity, environmentKey = environmentKey, baseUrl = baseUrl))
             .responseObject(IdentityFlagsAndTraitsDeserializer()) { _, _, res ->
                 res.fold(
                     success = { value ->
@@ -126,36 +126,4 @@ class Flagsmith private constructor(
                 )
             }
     }
-
-    override fun toString(): String {
-        return "Flagsmith(apiAuthToken=$apiAuthToken, environmentKey=$environmentKey, baseUrl='$baseUrl', context=$context, enableAnalytics=$enableAnalytics, analyticsFlushPeriod=$analyticsFlushPeriod, analytics=$analytics)"
-    }
-
-    data class Builder(
-        var apiAuthToken: String? = null,
-        var environmentKey: String,
-        var baseUrl: String? = null,
-        var enableAnalytics: Boolean? = null,
-        var analyticsFlushPeriod: Int? = null,
-        var context: Context? = null
-    ) {
-
-        fun apiAuthToken(v: String) = apply { this.apiAuthToken = v }
-        fun environmentKey(v: String) = apply { this.environmentKey = v }
-        fun baseUrl(v: String) = apply { this.baseUrl = v }
-        fun enableAnalytics(v: Boolean) = apply { this.enableAnalytics = v }
-        fun analyticsFlushPeriod(v: Int) = apply { this.analyticsFlushPeriod = v }
-        fun context(v: Context) = apply { this.context = v }
-
-        fun build(): Flagsmith {
-            return Flagsmith(apiAuthToken = apiAuthToken, environmentKey = environmentKey,
-                baseUrl = baseUrl ?: DEFAULT_BASE_URL, enableAnalytics = enableAnalytics ?: DEFAULT_ENABLE_ANALYTICS,
-                analyticsFlushPeriod = analyticsFlushPeriod ?: DEFAULT_ANALYTICS_FLUSH_PERIOD_SECONDS,
-                context = context
-            )
-        }
-    }
-
-
-
 }
