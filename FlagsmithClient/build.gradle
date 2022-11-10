@@ -17,7 +17,7 @@ android {
         consumerProguardFiles "consumer-rules.pro"
 
         versionCode 2
-        versionName "0.0.2"
+        versionName "1.0.0"
 
         namespace 'com.flagsmith.kotlin'
     }
