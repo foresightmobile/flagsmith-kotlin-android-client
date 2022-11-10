@@ -8,7 +8,6 @@ import com.github.kittinunf.fuel.core.Method
 import com.github.kittinunf.fuel.core.Parameters
 import com.github.kittinunf.fuel.util.FuelRouting
 import com.google.gson.Gson
-import okhttp3.internal.toImmutableMap
 
 sealed class FlagsmithApi(
     private val environmentKey: String,
@@ -40,7 +39,7 @@ sealed class FlagsmithApi(
             if (method == Method.POST) {
                 headers["Content-Type"] = listOf("application/json")
             }
-            return headers.toImmutableMap()
+            return headers
         }
 
     override val method: Method
