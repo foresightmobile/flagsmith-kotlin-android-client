@@ -46,7 +46,7 @@ class FlagsmithAnalytics constructor(
         val currentFlagCount = currentEvents[flagName] ?: 0
         currentEvents[flagName] = currentFlagCount + 1;
 
-        //update events cache
+        // Update events cache
         setMap(currentEvents)
     }
 

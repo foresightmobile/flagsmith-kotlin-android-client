@@ -4,8 +4,6 @@ plugins {
     id 'maven-publish'
 }
 
-// group='com.flagsmith'
-
 android {
     compileSdk 33
 

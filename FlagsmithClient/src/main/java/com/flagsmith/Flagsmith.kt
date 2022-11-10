@@ -84,9 +84,9 @@ class Flagsmith constructor(
             .responseObject(IdentityFlagsAndTraitsDeserializer()) { _, _, res ->
                 res.fold(
                     success = { value ->
-                                val trait = value.traits.find { it.key == id }
-                                result(Result.success(trait))
-                              },
+                        val trait = value.traits.find { it.key == id }
+                        result(Result.success(trait))
+                    },
                     failure = { err -> result(Result.failure(err)) }
                 )
             }
