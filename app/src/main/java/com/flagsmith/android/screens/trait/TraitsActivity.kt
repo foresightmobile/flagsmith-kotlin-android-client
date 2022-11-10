@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.flagsmith.Flagsmith
 import com.flagsmith.entities.Trait
-import com.flagmsith.android.R
+import com.flagsmith.android.R
 import com.flagsmith.android.adapter.TraitAdapter
 import com.flagsmith.android.adapter.TraitPickerSelect
 import com.flagsmith.android.helper.Helper

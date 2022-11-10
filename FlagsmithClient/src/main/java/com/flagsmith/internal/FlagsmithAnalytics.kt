@@ -11,10 +11,8 @@ import org.json.JSONException
 import org.json.JSONObject
 
 class FlagsmithAnalytics constructor(
-    private val environmentKey: String,
     private val context: Context,
-    private val flushPeriod: Int,
-    private val baseUrl: String
+    private val flushPeriod: Int
 ) {
     private val applicationContext: Context = context.applicationContext
     private val currentEvents = getMap()
@@ -23,7 +21,7 @@ class FlagsmithAnalytics constructor(
     private val timerRunnable = object : Runnable {
         override fun run() {
             if (currentEvents.isNotEmpty()) {
-                Fuel.request(FlagsmithApi.postAnalytics(environmentKey = environmentKey, eventMap = currentEvents, baseUrl = baseUrl))
+                Fuel.request(FlagsmithApi.postAnalytics(eventMap = currentEvents))
                     .response { _, _, res ->
                         res.fold(
                             success = { resetMap() },

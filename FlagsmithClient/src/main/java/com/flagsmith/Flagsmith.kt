@@ -8,22 +8,22 @@ import com.github.kittinunf.fuel.Fuel
 
 class Flagsmith constructor(
     private val environmentKey: String,
-    val baseUrlOverride: String? = null,
+    private val baseUrl: String? = null,
     val context: Context? = null,
     private val enableAnalytics: Boolean = DEFAULT_ENABLE_ANALYTICS,
     private val analyticsFlushPeriod: Int = DEFAULT_ANALYTICS_FLUSH_PERIOD_SECONDS
 ) {
     private var analytics: FlagsmithAnalytics? = null
-    private val baseUrl: String
-        get() = baseUrlOverride ?: "https://edge.api.flagsmith.com/api/v1"
 
     init {
         if (enableAnalytics && context != null) {
-            this.analytics = FlagsmithAnalytics(environmentKey, context, analyticsFlushPeriod, baseUrl)
+            this.analytics = FlagsmithAnalytics(context, analyticsFlushPeriod)
         }
         if (enableAnalytics && context == null) {
             throw IllegalArgumentException("Flagsmith requires a context to use the analytics feature")
         }
+        FlagsmithApi.baseUrl = baseUrl ?: "https://edge.api.flagsmith.com/api/v1"
+        FlagsmithApi.environmentKey = environmentKey
     }
 
     companion object {
@@ -34,7 +34,7 @@ class Flagsmith constructor(
     fun getFeatureFlags(identity: String?, result: (Result<List<Flag>>) -> Unit) {
         if (identity != null) {
             Fuel.request(
-                FlagsmithApi.getIdentityFlagsAndTraits(identity = identity, environmentKey = environmentKey, baseUrl = baseUrl))
+                FlagsmithApi.getIdentityFlagsAndTraits(identity = identity))
                 .responseObject(IdentityFlagsAndTraitsDeserializer()) { _, _, res ->
                     res.fold(
                         success = { value -> result(Result.success(value.flags)) },
@@ -42,7 +42,7 @@ class Flagsmith constructor(
                     )
                 }
         } else {
-            Fuel.request(FlagsmithApi.getFlags(environmentKey = environmentKey, baseUrl = baseUrl))
+            Fuel.request(FlagsmithApi.getFlags())
                 .responseObject(FlagListDeserializer()) { _, _, res ->
                     res.fold(
                         success = { value -> result(Result.success(value)) },
@@ -80,7 +80,7 @@ class Flagsmith constructor(
 
     fun getTrait(id: String, identity: String, result: (Result<Trait?>) -> Unit) {
         Fuel.request(
-            FlagsmithApi.getIdentityFlagsAndTraits(identity = identity, environmentKey = environmentKey, baseUrl = baseUrl))
+            FlagsmithApi.getIdentityFlagsAndTraits(identity = identity))
             .responseObject(IdentityFlagsAndTraitsDeserializer()) { _, _, res ->
                 res.fold(
                     success = { value ->
@@ -94,7 +94,7 @@ class Flagsmith constructor(
 
     fun getTraits(identity: String, result: (Result<List<Trait>>) -> Unit) {
         Fuel.request(
-            FlagsmithApi.getIdentityFlagsAndTraits(identity = identity, environmentKey = environmentKey, baseUrl = baseUrl))
+            FlagsmithApi.getIdentityFlagsAndTraits(identity = identity))
             .responseObject(IdentityFlagsAndTraitsDeserializer()) { _, _, res ->
                 res.fold(
                     success = { value -> result(Result.success(value.traits)) },
@@ -105,7 +105,7 @@ class Flagsmith constructor(
 
     fun setTrait(trait: Trait, identity: String, result: (Result<TraitWithIdentity>) -> Unit) {
         Fuel.request(
-            FlagsmithApi.setTrait(trait = trait, identity = identity, environmentKey = environmentKey, baseUrl = baseUrl))
+            FlagsmithApi.setTrait(trait = trait, identity = identity))
             .responseObject(TraitWithIdentityDeserializer()) { _, _, res ->
                 res.fold(
                     success = { value -> result(Result.success(value)) },
@@ -116,7 +116,7 @@ class Flagsmith constructor(
 
     fun getIdentity(identity: String, result: (Result<IdentityFlagsAndTraits>) -> Unit){
         Fuel.request(
-            FlagsmithApi.getIdentityFlagsAndTraits(identity = identity, environmentKey = environmentKey, baseUrl = baseUrl))
+            FlagsmithApi.getIdentityFlagsAndTraits(identity = identity))
             .responseObject(IdentityFlagsAndTraitsDeserializer()) { _, _, res ->
                 res.fold(
                     success = { value ->

@@ -10,7 +10,7 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.flagsmith.Flagsmith
-import com.flagmsith.android.R
+import com.flagsmith.android.R
 
 import com.flagsmith.android.helper.Helper
 import com.flagsmith.entities.Trait

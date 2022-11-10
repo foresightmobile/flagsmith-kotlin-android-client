@@ -9,18 +9,25 @@ import com.github.kittinunf.fuel.core.Parameters
 import com.github.kittinunf.fuel.util.FuelRouting
 import com.google.gson.Gson
 
-sealed class FlagsmithApi(
-    private val environmentKey: String,
-    private val baseUrl: String
-    ): FuelRouting {
-    class getIdentityFlagsAndTraits(val identity: String, environmentKey: String, baseUrl: String): FlagsmithApi(environmentKey, baseUrl)
-    class getFlags(environmentKey: String, baseUrl: String): FlagsmithApi(environmentKey, baseUrl)
-    class setTrait(val trait: Trait, val identity: String, environmentKey: String, baseUrl: String): FlagsmithApi(environmentKey, baseUrl)
-    class postAnalytics(val eventMap: Map<String, Int?>, environmentKey: String, baseUrl: String): FlagsmithApi(environmentKey, baseUrl)
+sealed class FlagsmithApi: FuelRouting {
+    class getIdentityFlagsAndTraits(val identity: String): FlagsmithApi()
+    class getFlags(): FlagsmithApi()
+    class setTrait(val trait: Trait, val identity: String): FlagsmithApi()
+    class postAnalytics(val eventMap: Map<String, Int?>): FlagsmithApi()
+
+    companion object {
+        var environmentKey: String? = null
+        var baseUrl: String? = null
+    }
 
     override val basePath: String
-        get() = baseUrl
-
+        get() {
+            if (baseUrl == null) {
+                throw IllegalStateException("baseUrl not set in FlagsmithApi, check Flagsmith SDK initialization")
+            } else {
+                return baseUrl!!
+            }
+        }
     override val body: String?
         get() {
             return when(this) {
@@ -35,7 +42,7 @@ sealed class FlagsmithApi(
 
     override val headers: Map<String, HeaderValues>?
         get() {
-            val headers = mutableMapOf<String, HeaderValues>("X-Environment-Key" to listOf(environmentKey))
+            val headers = mutableMapOf<String, HeaderValues>("X-Environment-Key" to listOf(environmentKey ?: ""))
             if (method == Method.POST) {
                 headers["Content-Type"] = listOf("application/json")
             }
