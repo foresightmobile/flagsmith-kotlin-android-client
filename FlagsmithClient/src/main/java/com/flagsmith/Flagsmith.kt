@@ -25,6 +25,7 @@ import retrofit2.Response
 class Flagsmith constructor(
     private val environmentKey: String,
     private val baseUrl: String = "https://edge.api.flagsmith.com/api/v1",
+    private val eventSourceUrl: String = "https://events.flagsmith.com/api/v1",
     private val context: Context? = null,
     private val enableAnalytics: Boolean = DEFAULT_ENABLE_ANALYTICS,
     private val enableCache: Boolean = DEFAULT_ENABLE_CACHE,
