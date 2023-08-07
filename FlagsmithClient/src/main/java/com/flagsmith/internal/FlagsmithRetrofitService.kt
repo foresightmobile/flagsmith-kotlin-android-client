@@ -2,6 +2,7 @@ package com.flagsmith.internal;
 
 import android.content.Context
 import android.util.Log
+import com.flagsmith.FlagsmithCacheConfig
 import com.flagsmith.entities.Flag
 import com.flagsmith.entities.IdentityFlagsAndTraits
 import com.flagsmith.entities.TraitWithIdentity
@@ -26,27 +27,23 @@ interface FlagsmithRetrofitService {
     fun postTraits(@Body trait: TraitWithIdentity) : Call<TraitWithIdentity>
 
     @POST("analytics/flags/")
-    fun postAnalytics(@Body eventMap: Map<String, Int?>) : Call<TraitWithIdentity>
+    fun postAnalytics(@Body eventMap: Map<String, Int?>) : Call<Unit>
 
     companion object {
-        //TODO: Consider these might be fine for server side, but might be a bit short for mobile
-        private const val REQUEST_TIMEOUT_SECONDS = 2L
-        private const val READ_WRITE_TIMEOUT_SECONDS = 5L
-        private const val cacheSize = 10L * 1024L * 1024L // 10 MB
-
         fun create(
             baseUrl: String,
             environmentKey: String,
-            ttlSeconds: Long,
             context: Context?,
-            enableCache: Boolean
+            cacheConfig: FlagsmithCacheConfig,
+            requestTimeoutSeconds: Long,
+            readTimeoutSeconds: Long,
+            writeTimeoutSeconds: Long,
         ): FlagsmithRetrofitService {
-            fun cacheControlInterceptor(ttlSeconds: Long?): Interceptor {
+            fun cacheControlInterceptor(): Interceptor {
                 return Interceptor { chain ->
                     val response = chain.proceed(chain.request())
-                    val maxAge = ttlSeconds
                     response.newBuilder()
-                        .header("Cache-Control", "public, max-age=$maxAge")
+                        .header("Cache-Control", "public, max-age=${cacheConfig.cacheTTLSeconds}")
                         .removeHeader("Pragma")
                         .build()
                 }
@@ -63,11 +60,11 @@ interface FlagsmithRetrofitService {
 
             val client = OkHttpClient.Builder()
                 .addInterceptor(envKeyInterceptor(environmentKey))
-                .addNetworkInterceptor(cacheControlInterceptor(ttlSeconds))
-                .callTimeout(REQUEST_TIMEOUT_SECONDS, java.util.concurrent.TimeUnit.SECONDS)
-                .readTimeout(READ_WRITE_TIMEOUT_SECONDS, java.util.concurrent.TimeUnit.SECONDS)
-                .writeTimeout(READ_WRITE_TIMEOUT_SECONDS, java.util.concurrent.TimeUnit.SECONDS)
-                .cache(if (context != null && enableCache) okhttp3.Cache(context.cacheDir, cacheSize) else null)
+                .let { if (cacheConfig.enableCache) it.addNetworkInterceptor(cacheControlInterceptor()) else it }
+                .callTimeout(requestTimeoutSeconds, java.util.concurrent.TimeUnit.SECONDS)
+                .readTimeout(readTimeoutSeconds, java.util.concurrent.TimeUnit.SECONDS)
+                .writeTimeout(writeTimeoutSeconds, java.util.concurrent.TimeUnit.SECONDS)
+                .cache(if (context != null && cacheConfig.enableCache) okhttp3.Cache(context.cacheDir, cacheConfig.cacheSize) else null)
                 .build()
 
             val retrofit = Retrofit.Builder()
@@ -81,7 +78,9 @@ interface FlagsmithRetrofitService {
     }
 }
 
-// Convert a Retrofit Call to a Result by extending the Call class
+// Convert a Retrofit Call to a standard Kotlin Result by extending the Call class
+// This avoids having to use the suspend keyword in the FlagsmithClient to break the API
+// And also avoids a lot of code duplication
 fun <T> Call<T>.enqueueWithResult(defaults: T? = null, result: (Result<T>) -> Unit) {
     this.enqueue(object : Callback<T> {
         override fun onResponse(call: Call<T>, response: Response<T>) {
