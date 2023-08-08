@@ -22,8 +22,8 @@ import com.flagsmith.internal.enqueueWithResult
  */
 class Flagsmith constructor(
     private val environmentKey: String,
-    private val baseUrl: String = "https://edge.api.flagsmith.com/api/v1",
-    private val eventSourceUrl: String = "https://events.flagsmith.com/api/v1",
+    private val baseUrl: String = "https://edge.api.flagsmith.com/api/v1/",
+    private val eventSourceUrl: String = "https://realtime.flagsmith.com/sse/environments/",
     private val context: Context? = null,
     private val enableAnalytics: Boolean = DEFAULT_ENABLE_ANALYTICS,
     private val enableRealtimeUpdates: Boolean = false,
@@ -47,8 +47,7 @@ class Flagsmith constructor(
 
     private val eventService: FlagsmithEventService? =
         if (!enableRealtimeUpdates) null
-        else if (context != null) FlagsmithEventService(eventSourceUrl, environmentKey)
-        else throw IllegalArgumentException("Flagsmith requires a context to use the realtime updates feature")
+        else FlagsmithEventService(eventSourceUrl, environmentKey)
 
     init {
         if (cacheConfig.enableCache && context == null) {
