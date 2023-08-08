@@ -38,6 +38,7 @@ interface FlagsmithRetrofitService {
             requestTimeoutSeconds: Long,
             readTimeoutSeconds: Long,
             writeTimeoutSeconds: Long,
+            timeTracker: FlagsmithEventTimeTracker,
         ): FlagsmithRetrofitService {
             fun cacheControlInterceptor(): Interceptor {
                 return Interceptor { chain ->
@@ -49,12 +50,15 @@ interface FlagsmithRetrofitService {
                 }
             }
 
-            fun envKeyInterceptor(environmentKey: String): Interceptor {
+            fun updatedAtInterceptor(tracker: FlagsmithEventTimeTracker): Interceptor {
                 return Interceptor { chain ->
-                    val request = chain.request().newBuilder()
-                        .addHeader("X-environment-key", environmentKey)
-                        .build()
-                    chain.proceed(request)
+                    val response = chain.proceed(chain.request())
+                    val updatedAt = response.header("x-flagsmith-document-updated-at")
+                    Log.i("Flagsmith", "updatedAt: $updatedAt")
+
+                    //TODO: Parse updatedAt and set it on the tracker
+
+                    return@Interceptor response
                 }
             }
 
@@ -74,6 +78,15 @@ interface FlagsmithRetrofitService {
                 .build()
 
             return retrofit.create(FlagsmithRetrofitService::class.java)
+        }
+
+        fun envKeyInterceptor(environmentKey: String): Interceptor {
+            return Interceptor { chain ->
+                val request = chain.request().newBuilder()
+                    .addHeader("X-environment-key", environmentKey)
+                    .build()
+                chain.proceed(request)
+            }
         }
     }
 }

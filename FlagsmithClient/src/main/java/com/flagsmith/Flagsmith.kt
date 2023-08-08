@@ -3,6 +3,8 @@ package com.flagsmith
 import android.content.Context
 import com.flagsmith.entities.*
 import com.flagsmith.internal.FlagsmithAnalytics
+import com.flagsmith.internal.FlagsmithEventService
+import com.flagsmith.internal.FlagsmithEventTimeTracker
 import com.flagsmith.internal.FlagsmithRetrofitService
 import com.flagsmith.internal.enqueueWithResult
 
@@ -24,20 +26,29 @@ class Flagsmith constructor(
     private val eventSourceUrl: String = "https://events.flagsmith.com/api/v1",
     private val context: Context? = null,
     private val enableAnalytics: Boolean = DEFAULT_ENABLE_ANALYTICS,
+    private val enableRealtimeUpdates: Boolean = false,
     private val analyticsFlushPeriod: Int = DEFAULT_ANALYTICS_FLUSH_PERIOD_SECONDS,
     private val cacheConfig: FlagsmithCacheConfig = FlagsmithCacheConfig(),
     private val defaultFlags: List<Flag> = emptyList(),
     private val requestTimeoutSeconds: Long = 4L,
     private val readTimeoutSeconds: Long = 6L,
-    private val writeTimeoutSeconds: Long = 6L
-) {
+    private val writeTimeoutSeconds: Long = 6L,
+    override var lastSeenAt: String? = null // from FlagsmithEventTimeTracker
+) : FlagsmithEventTimeTracker {
     private val retrofit: FlagsmithRetrofitService = FlagsmithRetrofitService.create(
         baseUrl = baseUrl, environmentKey = environmentKey, context = context, cacheConfig = cacheConfig,
-        requestTimeoutSeconds = requestTimeoutSeconds, readTimeoutSeconds = readTimeoutSeconds, writeTimeoutSeconds = writeTimeoutSeconds)
+        requestTimeoutSeconds = requestTimeoutSeconds, readTimeoutSeconds = readTimeoutSeconds,
+        writeTimeoutSeconds = writeTimeoutSeconds, timeTracker = this)
+
     private val analytics: FlagsmithAnalytics? =
         if (!enableAnalytics) null
         else if (context != null) FlagsmithAnalytics(context, retrofit, analyticsFlushPeriod)
         else throw IllegalArgumentException("Flagsmith requires a context to use the analytics feature")
+
+    private val eventService: FlagsmithEventService? =
+        if (!enableRealtimeUpdates) null
+        else if (context != null) FlagsmithEventService(eventSourceUrl, environmentKey)
+        else throw IllegalArgumentException("Flagsmith requires a context to use the realtime updates feature")
 
     init {
         if (cacheConfig.enableCache && context == null) {
