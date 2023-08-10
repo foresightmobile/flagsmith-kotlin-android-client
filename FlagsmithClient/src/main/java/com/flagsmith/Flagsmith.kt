@@ -1,12 +1,16 @@
 package com.flagsmith
 
 import android.content.Context
+import android.util.Log
 import com.flagsmith.entities.*
 import com.flagsmith.internal.FlagsmithAnalytics
 import com.flagsmith.internal.FlagsmithEventService
 import com.flagsmith.internal.FlagsmithEventTimeTracker
 import com.flagsmith.internal.FlagsmithRetrofitService
 import com.flagsmith.internal.enqueueWithResult
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.onEach
 
 /**
  * Flagsmith
@@ -23,7 +27,7 @@ import com.flagsmith.internal.enqueueWithResult
 class Flagsmith constructor(
     private val environmentKey: String,
     private val baseUrl: String = "https://edge.api.flagsmith.com/api/v1/",
-    private val eventSourceUrl: String = "https://realtime.flagsmith.com/sse/environments/",
+    private val eventSourceUrl: String? = null,
     private val context: Context? = null,
     private val enableAnalytics: Boolean = DEFAULT_ENABLE_ANALYTICS,
     private val enableRealtimeUpdates: Boolean = false,
@@ -47,11 +51,18 @@ class Flagsmith constructor(
 
     private val eventService: FlagsmithEventService? =
         if (!enableRealtimeUpdates) null
-        else FlagsmithEventService(eventSourceUrl, environmentKey)
+        else FlagsmithEventService(eventSourceUrl = eventSourceUrl, environmentKey = environmentKey)
+
+    private val lastEventUpdate: Double = 0.0
+
+    private var flagUpdates = MutableStateFlow<FlagEvent>(FlagEvent(0.0))
 
     init {
         if (cacheConfig.enableCache && context == null) {
             throw IllegalArgumentException("Flagsmith requires a context to use the cache feature")
+        }
+        if (enableRealtimeUpdates) {
+            getFlagUpdates()
         }
     }
 
@@ -112,6 +123,20 @@ class Flagsmith constructor(
             analytics?.trackEvent(featureId)
             foundFlag
         })
+    }
+
+    private fun getFlagUpdates() {
+        if (eventService == null) return
+        eventService.sseEventsFlow.onEach {
+            getFeatureFlags { res ->
+                if (res.isFailure) {
+                    Log.e("Flagsmith", "Error getting flags in SSE stream: ${res.exceptionOrNull()}")
+                    return@getFeatureFlags
+                }
+            }
+        }.catch {
+            Log.e("Flagsmith", "Error in SSE stream: $it")
+        }
     }
 
 }

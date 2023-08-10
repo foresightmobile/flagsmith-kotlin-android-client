@@ -15,9 +15,10 @@ import java.lang.reflect.Type
 import java.util.concurrent.TimeUnit
 
 class FlagsmithEventService constructor(
-    private val eventSourceUrl: String,
-    private val environmentKey: String
+    private val eventSourceUrl: String?,
+    private val environmentKey: String,
 ) {
+    private val defaultEventSourceHost = "https://realtime.flagsmith.com/"
 
     private val sseClient = OkHttpClient.Builder()
         .addInterceptor(FlagsmithRetrofitService.envKeyInterceptor(environmentKey))
@@ -26,13 +27,15 @@ class FlagsmithEventService constructor(
         .writeTimeout(10, TimeUnit.MINUTES)
         .build()
 
+    private val defaultEventSourceUrl: String = defaultEventSourceHost + "sse/environments/" +  environmentKey + "/stream"
+
     private val sseRequest = Request.Builder()
-        .url(eventSourceUrl)
+        .url(eventSourceUrl ?: defaultEventSourceUrl)
         .header("Accept", "application/json")
         .addHeader("Accept", "text/event-stream")
         .build()
 
-    var sseEventsFlow = MutableStateFlow(FlagEvent(updatedAt = ""))
+    var sseEventsFlow = MutableStateFlow(FlagEvent(updatedAt = 0.0))
         private set
 
     private val sseEventSourceListener = object : EventSourceListener() {
@@ -46,7 +49,7 @@ class FlagsmithEventService constructor(
         override fun onEvent(eventSource: EventSource, id: String?, type: String?, data: String) {
             super.onEvent(eventSource, id, type, data)
             Log.d(TAG, "onEvent: $data")
-            if (data.isNotEmpty()) {
+            if (type != null && type == "environment_updated" && data.isNotEmpty()) {
                 val flagEvent = Gson().fromJson(data, FlagEvent::class.java)
                 sseEventsFlow.tryEmit(flagEvent)
             }
