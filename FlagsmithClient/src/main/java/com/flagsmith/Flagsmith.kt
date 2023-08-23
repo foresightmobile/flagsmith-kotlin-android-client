@@ -8,9 +8,15 @@ import com.flagsmith.internal.FlagsmithEventService
 import com.flagsmith.internal.FlagsmithEventTimeTracker
 import com.flagsmith.internal.FlagsmithRetrofitService
 import com.flagsmith.internal.enqueueWithResult
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import okhttp3.Cache
 
 /**
  * Flagsmith
@@ -39,11 +45,13 @@ class Flagsmith constructor(
     private val writeTimeoutSeconds: Long = 6L,
     override var lastSeenAt: String? = null // from FlagsmithEventTimeTracker
 ) : FlagsmithEventTimeTracker {
-    private val retrofit: FlagsmithRetrofitService = FlagsmithRetrofitService.create(
-        baseUrl = baseUrl, environmentKey = environmentKey, context = context, cacheConfig = cacheConfig,
-        requestTimeoutSeconds = requestTimeoutSeconds, readTimeoutSeconds = readTimeoutSeconds,
-        writeTimeoutSeconds = writeTimeoutSeconds, timeTracker = this)
+//    private val retrofit: FlagsmithRetrofitService = FlagsmithRetrofitService.create(
+//        baseUrl = baseUrl, environmentKey = environmentKey, context = context, cacheConfig = cacheConfig,
+//        requestTimeoutSeconds = requestTimeoutSeconds, readTimeoutSeconds = readTimeoutSeconds,
+//        writeTimeoutSeconds = writeTimeoutSeconds, timeTracker = this)
 
+    private lateinit var retrofit: FlagsmithRetrofitService
+    private var cache: Cache? = null
     private val analytics: FlagsmithAnalytics? =
         if (!enableAnalytics) null
         else if (context != null) FlagsmithAnalytics(context, retrofit, analyticsFlushPeriod)
@@ -51,9 +59,34 @@ class Flagsmith constructor(
 
     private val eventService: FlagsmithEventService? =
         if (!enableRealtimeUpdates) null
-        else FlagsmithEventService(eventSourceUrl = eventSourceUrl, environmentKey = environmentKey)
+        else FlagsmithEventService(eventSourceUrl = eventSourceUrl, environmentKey = environmentKey) { event ->
+            // TODO check if event is success - maybe need an event for when the connection dies?
+            if (event.isSuccess) {
+                // First evict the cache otherwise we'll be stuck with the old values
+                eventService?.evictCache()
+                cache?.evictAll()
+                lastEventUpdate = event.getOrNull()?.updatedAt ?: lastEventUpdate
 
-    private val lastEventUpdate: Double = 0.0
+                // Now we can get the new values
+                getFeatureFlags { res ->
+                    if (res.isFailure) {
+                        Log.e(
+                            "Flagsmith",
+                            "Error getting flags in SSE stream: ${res.exceptionOrNull()}"
+                        )
+                    } else {
+                        // TODO post to our flow in case someone else wants to use it
+                        Log.i("Flagsmith", "Got flags due to SSE event: $event")
+                    }
+                }
+            } else {
+                // Todo handle error
+            }
+        }
+
+    // The last time we got an event from the SSE stream or via the API
+    // TODO: Matthew thinks we're fine to move this into the EventService and track from there to avoid event-driven updates
+    private var lastEventUpdate: Double = 0.0
 
     private var flagUpdates = MutableStateFlow<FlagEvent>(FlagEvent(0.0))
 
@@ -64,6 +97,12 @@ class Flagsmith constructor(
         if (enableRealtimeUpdates) {
             getFlagUpdates()
         }
+        val pair = FlagsmithRetrofitService.create(
+            baseUrl = baseUrl, environmentKey = environmentKey, context = context, cacheConfig = cacheConfig,
+            requestTimeoutSeconds = requestTimeoutSeconds, readTimeoutSeconds = readTimeoutSeconds,
+            writeTimeoutSeconds = writeTimeoutSeconds, timeTracker = this)
+        retrofit = pair.first
+        cache = pair.second
     }
 
     companion object {
@@ -136,7 +175,7 @@ class Flagsmith constructor(
             }
         }.catch {
             Log.e("Flagsmith", "Error in SSE stream: $it")
-        }
+        } // launchIn
     }
 
 }
