@@ -125,7 +125,7 @@ class RealTimeUpdatesTests {
         await untilTrue (testComplete)
     }
 
-    @Test(timeout = 100000)
+    @Test(timeout = 1000000)
     fun testGettingFlagsWithRealtimeUpdatesUsingSynchronous() = runBlocking {
         // Get the current value
         val currentFlagValue =

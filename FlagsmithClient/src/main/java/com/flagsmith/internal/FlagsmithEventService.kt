@@ -37,6 +37,8 @@ class FlagsmithEventService constructor(
         .addHeader("Accept", "text/event-stream")
         .build()
 
+    private var currentEventSource: EventSource? = null
+
     var sseEventsFlow = MutableStateFlow(FlagEvent(updatedAt = 0.0))
         private set
 
@@ -44,9 +46,9 @@ class FlagsmithEventService constructor(
         override fun onClosed(eventSource: EventSource) {
             super.onClosed(eventSource)
             Log.d(TAG, "onClosed: $eventSource")
-            updates(Result.failure(IllegalStateException("Connection Closed")))
-            // val event = FlagEvent(STATUS.CLOSED)
-            // sseEventsFlow.tryEmit(event)
+
+            // This isn't uncommon and is the nature of HTTP requests, so just reconnect
+            initEventSource()
         }
 
         override fun onEvent(eventSource: EventSource, id: String?, type: String?, data: String) {
@@ -85,7 +87,8 @@ class FlagsmithEventService constructor(
     }
 
     private fun initEventSource() {
-        EventSources.createFactory(sseClient)
+        currentEventSource?.cancel()
+        currentEventSource = EventSources.createFactory(sseClient)
             .newEventSource(request = sseRequest, listener = sseEventSourceListener)
     }
 

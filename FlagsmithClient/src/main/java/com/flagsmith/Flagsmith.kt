@@ -60,10 +60,9 @@ class Flagsmith constructor(
     private val eventService: FlagsmithEventService? =
         if (!enableRealtimeUpdates) null
         else FlagsmithEventService(eventSourceUrl = eventSourceUrl, environmentKey = environmentKey) { event ->
-            // TODO check if event is success - maybe need an event for when the connection dies?
+            // TODO check if event is success - maybe need an event for when the connection dies? Or maybe handle inside the event service
             if (event.isSuccess) {
                 // First evict the cache otherwise we'll be stuck with the old values
-                eventService?.evictCache()
                 cache?.evictAll()
                 lastEventUpdate = event.getOrNull()?.updatedAt ?: lastEventUpdate
 
