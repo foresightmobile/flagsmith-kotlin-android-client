@@ -43,15 +43,11 @@ class Flagsmith constructor(
     private val requestTimeoutSeconds: Long = 4L,
     private val readTimeoutSeconds: Long = 6L,
     private val writeTimeoutSeconds: Long = 6L,
-    override var lastSeenAt: String? = null // from FlagsmithEventTimeTracker
+    override var lastSeenAt: Double = 0.0 // from FlagsmithEventTimeTracker
 ) : FlagsmithEventTimeTracker {
-//    private val retrofit: FlagsmithRetrofitService = FlagsmithRetrofitService.create(
-//        baseUrl = baseUrl, environmentKey = environmentKey, context = context, cacheConfig = cacheConfig,
-//        requestTimeoutSeconds = requestTimeoutSeconds, readTimeoutSeconds = readTimeoutSeconds,
-//        writeTimeoutSeconds = writeTimeoutSeconds, timeTracker = this)
-
     private lateinit var retrofit: FlagsmithRetrofitService
     private var cache: Cache? = null
+    private var lastUsedIdentity: String? = null
     private val analytics: FlagsmithAnalytics? =
         if (!enableAnalytics) null
         else if (context != null) FlagsmithAnalytics(context, retrofit, analyticsFlushPeriod)
@@ -60,31 +56,32 @@ class Flagsmith constructor(
     private val eventService: FlagsmithEventService? =
         if (!enableRealtimeUpdates) null
         else FlagsmithEventService(eventSourceUrl = eventSourceUrl, environmentKey = environmentKey) { event ->
-            // TODO check if event is success - maybe need an event for when the connection dies? Or maybe handle inside the event service
             if (event.isSuccess) {
                 // First evict the cache otherwise we'll be stuck with the old values
                 cache?.evictAll()
                 lastEventUpdate = event.getOrNull()?.updatedAt ?: lastEventUpdate
 
-                // Now we can get the new values
-                getFeatureFlags { res ->
-                    if (res.isFailure) {
-                        Log.e(
-                            "Flagsmith",
-                            "Error getting flags in SSE stream: ${res.exceptionOrNull()}"
-                        )
-                    } else {
-                        // TODO post to our flow in case someone else wants to use it
-                        Log.i("Flagsmith", "Got flags due to SSE event: $event")
+                // Check whether this event is anything new
+                if (lastEventUpdate > lastSeenAt) {
+                    lastSeenAt = lastEventUpdate
+
+                    // Now we can get the new values
+                    getFeatureFlags(lastUsedIdentity) { res ->
+                        if (res.isFailure) {
+                            Log.e(
+                                "Flagsmith",
+                                "Error getting flags in SSE stream: ${res.exceptionOrNull()}"
+                            )
+                        } else {
+                            // TODO post to our flow in case someone else wants to use it
+                            Log.i("Flagsmith", "Got flags due to SSE event: $event")
+                        }
                     }
                 }
-            } else {
-                // Todo handle error
             }
         }
 
     // The last time we got an event from the SSE stream or via the API
-    // TODO: Matthew thinks we're fine to move this into the EventService and track from there to avoid event-driven updates
     private var lastEventUpdate: Double = 0.0
 
     private var flagUpdates = MutableStateFlow<FlagEvent>(FlagEvent(0.0))
@@ -110,6 +107,9 @@ class Flagsmith constructor(
     }
 
     fun getFeatureFlags(identity: String? = null, result: (Result<List<Flag>>) -> Unit) {
+        // Save the last used identity as we'll refresh with this if we get update events
+        lastUsedIdentity = identity
+
         if (identity != null) {
             retrofit.getIdentityFlagsAndTraits(identity).enqueueWithResult { res ->
                 result(res.map { it.flags })
@@ -138,18 +138,19 @@ class Flagsmith constructor(
     fun getTrait(id: String, identity: String, result: (Result<Trait?>) -> Unit) =
         retrofit.getIdentityFlagsAndTraits(identity).enqueueWithResult { res ->
             result(res.map { value -> value.traits.find { it.key == id } })
-        }
+        }.also { lastUsedIdentity = identity }
 
     fun getTraits(identity: String, result: (Result<List<Trait>>) -> Unit) =
         retrofit.getIdentityFlagsAndTraits(identity).enqueueWithResult { res ->
             result(res.map { it.traits })
-        }
+        }.also { lastUsedIdentity = identity }
 
     fun setTrait(trait: Trait, identity: String, result: (Result<TraitWithIdentity>) -> Unit) =
         retrofit.postTraits(TraitWithIdentity(trait.key, trait.value, Identity(identity))).enqueueWithResult(result = result)
 
     fun getIdentity(identity: String, result: (Result<IdentityFlagsAndTraits>) -> Unit) =
         retrofit.getIdentityFlagsAndTraits(identity).enqueueWithResult(defaults = null, result = result)
+            .also { lastUsedIdentity = identity }
 
     private fun getFeatureFlag(
         featureId: String,
@@ -161,7 +162,7 @@ class Flagsmith constructor(
             analytics?.trackEvent(featureId)
             foundFlag
         })
-    }
+    }.also { lastUsedIdentity = identity }
 
     private fun getFlagUpdates() {
         if (eventService == null) return

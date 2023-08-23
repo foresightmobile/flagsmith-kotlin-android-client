@@ -69,16 +69,11 @@ class FlagsmithEventService constructor(
                 updates(Result.failure(t))
             else
                 updates(Result.failure(Throwable("Unknown error")))
-
-//            val event = SSEEventData(STATUS.ERROR)
-//            sseEventsFlow.tryEmit(event)
         }
 
         override fun onOpen(eventSource: EventSource, response: Response) {
             super.onOpen(eventSource, response)
             Log.d(TAG, "onOpen: $eventSource")
-//            val event = SSEEventData(STATUS.OPEN)
-//            sseEventsFlow.tryEmit(event)
         }
     }
 

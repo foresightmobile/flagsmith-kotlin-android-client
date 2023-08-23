@@ -54,11 +54,11 @@ interface FlagsmithRetrofitService {
             fun updatedAtInterceptor(tracker: FlagsmithEventTimeTracker): Interceptor {
                 return Interceptor { chain ->
                     val response = chain.proceed(chain.request())
-                    val updatedAt = response.header("x-flagsmith-document-updated-at")
-                    Log.i("Flagsmith", "updatedAt: $updatedAt")
+                    val updatedAtString = response.header("x-flagsmith-document-updated-at")
+                    Log.i("Flagsmith", "updatedAt: $updatedAtString")
 
-                    //TODO: Parse updatedAt and set it on the tracker
-
+                    // Update in the tracker (Flagsmith class) if we got a new value
+                    tracker.lastSeenAt = updatedAtString?.toDoubleOrNull() ?: tracker.lastSeenAt
                     return@Interceptor response
                 }
             }
