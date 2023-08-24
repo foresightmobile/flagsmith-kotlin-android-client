@@ -106,6 +106,15 @@ kover {
 }
 
 tasks.withType(Test::class) {
+    // if the excludeIntegrationTests property is set
+    // then exclude tests with IntegrationTest in the name
+    // i.e. `:FlagsmithClient:testDebugUnitTest --tests "com.flagsmith.*" -P excludeIntegrationTests`
+    if (project.hasProperty("excludeIntegrationTests")) {
+        exclude {
+            it.name.contains("IntegrationTest")
+        }
+    }
+
     testLogging {
         events(
             TestLogEvent.FAILED,

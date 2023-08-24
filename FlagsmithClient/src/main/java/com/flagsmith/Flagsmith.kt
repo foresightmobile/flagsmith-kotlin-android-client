@@ -73,8 +73,8 @@ class Flagsmith constructor(
                                 "Error getting flags in SSE stream: ${res.exceptionOrNull()}"
                             )
                         } else {
-                            // TODO post to our flow in case someone else wants to use it
                             Log.i("Flagsmith", "Got flags due to SSE event: $event")
+                            flagUpdates.tryEmit(event.getOrNull() ?: FlagEvent(0.0))
                         }
                     }
                 }
@@ -84,6 +84,7 @@ class Flagsmith constructor(
     // The last time we got an event from the SSE stream or via the API
     private var lastEventUpdate: Double = 0.0
 
+    //TODO: Make this a list of flags?
     private var flagUpdates = MutableStateFlow<FlagEvent>(FlagEvent(0.0))
 
     init {

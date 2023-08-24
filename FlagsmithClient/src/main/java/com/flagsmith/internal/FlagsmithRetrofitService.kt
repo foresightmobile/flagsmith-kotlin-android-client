@@ -3,6 +3,7 @@ package com.flagsmith.internal;
 import android.content.Context
 import android.util.Log
 import com.flagsmith.FlagsmithCacheConfig
+import com.flagsmith.entities.FeatureStatePutBody
 import com.flagsmith.entities.Flag
 import com.flagsmith.entities.IdentityFlagsAndTraits
 import com.flagsmith.entities.TraitWithIdentity
@@ -13,16 +14,32 @@ import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.PATCH
 import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Path
 import retrofit2.http.Query
 
-interface FlagsmithRetrofitService {
+internal interface FlagsmithRetrofitService {
 
     @GET("identities/")
     fun getIdentityFlagsAndTraits(@Query("identity") identity: String) : Call<IdentityFlagsAndTraits>
 
     @GET("flags/")
     fun getFlags() : Call<List<Flag>>
+
+    @GET("environments/{environmentKey}/featurestates/{featureStateId}/")
+    fun getFeatureStates(@Header("authorization") authToken:String,
+                         @Path("featureStateId") featureStateId: String,
+                         @Path("environmentKey") environmentKey: String,
+                         @Query("feature_name") featureName: String) : Call<String>
+
+    @PUT("environments/{environmentKey}/featurestates/{featureStateId}/")
+    fun setFeatureStates(@Header("authorization") authToken:String,
+                         @Path("featureStateId") featureStateId: String,
+                         @Path("environmentKey") environmentKey: String,
+                         @Body body: FeatureStatePutBody) : Call<Unit>
 
     @POST("traits/")
     fun postTraits(@Body trait: TraitWithIdentity) : Call<TraitWithIdentity>
@@ -51,6 +68,21 @@ interface FlagsmithRetrofitService {
                 }
             }
 
+            fun jsonContentTypeInterceptor(): Interceptor {
+                return Interceptor { chain ->
+                    val request = chain.request()
+                    if (chain.request().method == "POST" || chain.request().method == "PUT" || chain.request().method == "PATCH") {
+                        val newRequest = request.newBuilder()
+                            .header("Content-Type", "application/json; charset=utf-8")
+                            .header("Accept", "application/json")
+                            .build()
+                        chain.proceed(newRequest)
+                    } else {
+                        chain.proceed(request)
+                    }
+                }
+            }
+
             fun updatedAtInterceptor(tracker: FlagsmithEventTimeTracker): Interceptor {
                 return Interceptor { chain ->
                     val response = chain.proceed(chain.request())
@@ -68,6 +100,7 @@ interface FlagsmithRetrofitService {
             val client = OkHttpClient.Builder()
                 .addInterceptor(envKeyInterceptor(environmentKey))
                 .addInterceptor(updatedAtInterceptor(timeTracker))
+                .addInterceptor(jsonContentTypeInterceptor())
                 .let { if (cacheConfig.enableCache) it.addNetworkInterceptor(cacheControlInterceptor()) else it }
                 .callTimeout(requestTimeoutSeconds, java.util.concurrent.TimeUnit.SECONDS)
                 .readTimeout(readTimeoutSeconds, java.util.concurrent.TimeUnit.SECONDS)
