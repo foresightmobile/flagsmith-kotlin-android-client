@@ -34,9 +34,10 @@ class RealTimeUpdatesIntegrationTests : FlagsmithEventTimeTracker {
     private lateinit var retrofitService: FlagsmithRetrofitService
 
     // You'll need a valid account to test this
-    //TODO: Get from local properties file not in source control
-    private val environmentKey = "F5X4CN67ZmSB547j2k2nX4"
-    private val authToken = "Token 8653bcb29a9d074fd403618c6d2b98f2ace74ea6"
+    private val environmentKey = System.getenv("ENV_KEY")
+    private val authToken = "Token " + System.getenv("API_TOKEN")
+    private val featureId = System.getenv("FEATURE_ID") ?: "integration-test-feature"
+    private val featureStateId = System.getenv("FEATURE_STATE_ID") ?: "313512"
 
     @Mock
     private lateinit var mockApplicationContext: Context
@@ -54,18 +55,10 @@ class RealTimeUpdatesIntegrationTests : FlagsmithEventTimeTracker {
     fun setup() {
         setupMocks()
 
-//        flagsmith = Flagsmith(
-//            environmentKey = environmentKey,
-//            enableAnalytics = false,
-//            cacheConfig = FlagsmithCacheConfig(enableCache = false),
-//            enableRealtimeUpdates = false,
-//            context = mockApplicationContext,
-//        )
-
         // We need the cache otherwise we'd be getting the new values from the server all the time
         // Rather than seeing the realtime updates
         flagsmith = Flagsmith(
-            environmentKey = environmentKey,
+            environmentKey = environmentKey!!,
             enableAnalytics = false,
             cacheConfig = FlagsmithCacheConfig(enableCache = true),
             enableRealtimeUpdates = true,
@@ -113,61 +106,21 @@ class RealTimeUpdatesIntegrationTests : FlagsmithEventTimeTracker {
             .thenReturn(intArrayOf(1, 2, 3))
     }
 
-//    @Test
-//    fun testGettingFlagsWithRealtimeUpdates() {
-//        var foundFromServer: List<Flag>? = null
-//        var testComplete: AtomicBoolean = AtomicBoolean(false);
-//
-//        flagsmith.getFeatureFlags { result ->
-//            Assert.assertTrue(result.isSuccess)
-//            Assert.assertTrue(result.getOrThrow().isNotEmpty())
-//            foundFromServer = result.getOrThrow()
-//        }
-//
-//        await untilNotNull { foundFromServer }
-//
-//        // Get the current value
-//        var currentFlagValue: Double? = null
-//        flagsmith.getValueForFeature("with-value") { result ->
-//            Assert.assertTrue(result.isSuccess)
-//            currentFlagValue = result.getOrThrow() as Double
-//        }
-//        await untilNotNull { currentFlagValue }
-//
-//        var newUpdatedFeatureValue: Double? = null
-//        do {
-//            flagsmith.getValueForFeature("with-value") { result ->
-//                Assert.assertTrue(result.isSuccess)
-//                newUpdatedFeatureValue = result.getOrThrow() as Double
-//            }
-//            await untilNotNull { newUpdatedFeatureValue }
-//        } while (newUpdatedFeatureValue != currentFlagValue)
-//
-//        await untilTrue (testComplete)
-//    }
-
-    @Test(timeout = 1000000)
-    fun testGettingFlagsWithRealtimeUpdatesUsingSynchronous() = runBlocking {
+    @Test(timeout = 10000) // Update after 5 secs, should be done in 10 seconds or fail
+    fun testGettingFlagsWithRealtimeUpdatesAfterPuttingNewValue() = runBlocking {
         // Get the current value
         val currentFlagValueDouble =
-            flagsmith.getValueForFeatureSync("with-value").getOrThrow() as Double?
+            flagsmith.getValueForFeatureSync(featureId).getOrThrow() as Double?
         Assert.assertNotNull(currentFlagValueDouble)
         val currentFlagValue: Int = currentFlagValueDouble!!.toInt()
 
         // After 5 seconds try to update the value using the retrofit service
         CoroutineScope(Dispatchers.IO).launch {
-//            val featureStatesResponse = retrofitService
-//                .getFeatureStates(featureName = "with-value", environmentKey = environmentKey, featureStateId = "165500")
-//                .execute()
-//            val map: Map<*, *>? = Gson().fromJson(featureStatesResponse.body(), Map::class.java)
-
+            // Wait 5 seconds before updating the value
             delay(5000)
 
-            // val id: String = map?.get("results")?.let { (it as List<*>)[0] as Map<*, *> }?.get("id") as String
-            val id = "165500"
-
             val response = retrofitService
-                .setFeatureStates(authToken, id, environmentKey, FeatureStatePutBody(true, currentFlagValue.inc()))// "{\"enabled\": true, \"feature_state_value\": " + (currentFlagValue!!+1.0) + "}")
+                .setFeatureStates(authToken, featureStateId, environmentKey!!, FeatureStatePutBody(true, currentFlagValue.inc()))
                 .execute()
             Assert.assertTrue(response.isSuccessful)
         }
@@ -175,7 +128,7 @@ class RealTimeUpdatesIntegrationTests : FlagsmithEventTimeTracker {
         var newUpdatedFeatureValue: Double?
         do {
             newUpdatedFeatureValue =
-                flagsmith.getValueForFeatureSync("with-value").getOrThrow() as Double?
+                flagsmith.getValueForFeatureSync(featureId).getOrThrow() as Double?
         } while (newUpdatedFeatureValue!! == currentFlagValueDouble)
     }
 }
