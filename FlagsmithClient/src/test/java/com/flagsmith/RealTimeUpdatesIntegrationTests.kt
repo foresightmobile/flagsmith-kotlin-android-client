@@ -11,21 +11,18 @@ import com.flagsmith.internal.FlagsmithRetrofitService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
-import org.awaitility.kotlin.await
-import org.awaitility.kotlin.untilNotNull
-import org.awaitility.kotlin.untilTrue
-import org.junit.Assert
 import org.mockito.ArgumentMatchers
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import java.io.File
-import java.util.concurrent.atomic.AtomicBoolean
 
 class RealTimeUpdatesIntegrationTests : FlagsmithEventTimeTracker {
 
@@ -50,6 +47,7 @@ class RealTimeUpdatesIntegrationTests : FlagsmithEventTimeTracker {
 
     // FlagsmithEventTimeTracker
     override var lastSeenAt: Double = 0.0
+    private var listOfFlagsFromUpdateFlow: List<Flag> = emptyList()
 
     @Before
     fun setup() {
@@ -72,6 +70,10 @@ class RealTimeUpdatesIntegrationTests : FlagsmithEventTimeTracker {
         retrofitService = FlagsmithRetrofitService.create(
             baseUrl = "https://api.flagsmith.com/api/v1/", environmentKey = environmentKey, context = mockApplicationContext, cacheConfig = FlagsmithCacheConfig(enableCache = false),
             timeTracker = this, requestTimeoutSeconds = requestTimeoutSeconds, readTimeoutSeconds = readTimeoutSeconds, writeTimeoutSeconds = writeTimeoutSeconds).first
+
+        flagsmith.flagUpdateFlow.onEach {
+            listOfFlagsFromUpdateFlow = it
+        }
     }
 
     @After
@@ -158,6 +160,32 @@ class RealTimeUpdatesIntegrationTests : FlagsmithEventTimeTracker {
         do {
             newUpdatedFeatureValue =
                 flagsmith.getValueForFeatureSync(featureId).getOrThrow() as Double?
+        } while (newUpdatedFeatureValue!! == currentFlagValueDouble)
+    }
+
+    @Test(timeout = 10000)
+    fun testGettingFlagsWithRealtimeUpdatesViaFlagUpdateFlow() = runBlocking {
+        // Get the current value
+        val currentFlagValueDouble =
+            flagsmith.getValueForFeatureSync(featureId).getOrThrow() as Double?
+        Assert.assertNotNull(currentFlagValueDouble)
+        val currentFlagValue: Int = currentFlagValueDouble!!.toInt()
+
+        // After 5 seconds try to update the value using the retrofit service
+        CoroutineScope(Dispatchers.IO).launch {
+            // Wait 5 seconds before updating the value
+            delay(5000)
+
+            val response = retrofitService
+                .setFeatureStates(authToken, featureStateId, environmentKey!!, FeatureStatePutBody(true, currentFlagValue.inc()))
+                .execute()
+            Assert.assertTrue(response.isSuccessful)
+        }
+
+        var newUpdatedFeatureValue: Double?
+        do {
+            // Check the value via the flag update flow, which should be current as the realtime updates come in
+            newUpdatedFeatureValue = listOfFlagsFromUpdateFlow.find { flag -> flag.feature.name == featureId }?.featureStateValue as Double? ?: 0.0
         } while (newUpdatedFeatureValue!! == currentFlagValueDouble)
     }
 }

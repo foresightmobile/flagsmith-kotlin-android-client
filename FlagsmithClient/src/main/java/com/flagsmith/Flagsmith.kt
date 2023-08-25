@@ -2,19 +2,18 @@ package com.flagsmith
 
 import android.content.Context
 import android.util.Log
-import com.flagsmith.entities.*
+import com.flagsmith.entities.Flag
+import com.flagsmith.entities.Identity
+import com.flagsmith.entities.IdentityFlagsAndTraits
+import com.flagsmith.entities.Trait
+import com.flagsmith.entities.TraitWithIdentity
 import com.flagsmith.internal.FlagsmithAnalytics
 import com.flagsmith.internal.FlagsmithEventService
 import com.flagsmith.internal.FlagsmithEventTimeTracker
 import com.flagsmith.internal.FlagsmithRetrofitService
 import com.flagsmith.internal.enqueueWithResult
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import okhttp3.Cache
 
@@ -57,12 +56,12 @@ class Flagsmith constructor(
         if (!enableRealtimeUpdates) null
         else FlagsmithEventService(eventSourceUrl = eventSourceUrl, environmentKey = environmentKey) { event ->
             if (event.isSuccess) {
-                // First evict the cache otherwise we'll be stuck with the old values
-                cache?.evictAll()
                 lastEventUpdate = event.getOrNull()?.updatedAt ?: lastEventUpdate
 
                 // Check whether this event is anything new
                 if (lastEventUpdate > lastSeenAt) {
+                    // First evict the cache otherwise we'll be stuck with the old values
+                    cache?.evictAll()
                     lastSeenAt = lastEventUpdate
 
                     // Now we can get the new values
@@ -74,7 +73,9 @@ class Flagsmith constructor(
                             )
                         } else {
                             Log.i("Flagsmith", "Got flags due to SSE event: $event")
-                            flagUpdates.tryEmit(event.getOrNull() ?: FlagEvent(0.0))
+
+                            // If the customer wants to subscribe to updates, emit the new flags
+                            flagUpdateFlow.tryEmit(res.getOrNull() ?: emptyList())
                         }
                     }
                 }
@@ -84,8 +85,8 @@ class Flagsmith constructor(
     // The last time we got an event from the SSE stream or via the API
     private var lastEventUpdate: Double = 0.0
 
-    //TODO: Make this a list of flags?
-    private var flagUpdates = MutableStateFlow<FlagEvent>(FlagEvent(0.0))
+    /// Stream of flag updates from the SSE stream if enabled
+    val flagUpdateFlow = MutableStateFlow<List<Flag>>(listOf())
 
     init {
         if (cacheConfig.enableCache && context == null) {
@@ -113,6 +114,7 @@ class Flagsmith constructor(
 
         if (identity != null) {
             retrofit.getIdentityFlagsAndTraits(identity).enqueueWithResult { res ->
+                flagUpdateFlow.tryEmit(res.getOrNull()?.flags ?: emptyList())
                 result(res.map { it.flags })
             }
         } else {
@@ -176,7 +178,7 @@ class Flagsmith constructor(
             }
         }.catch {
             Log.e("Flagsmith", "Error in SSE stream: $it")
-        } // launchIn
+        }
     }
 
 }

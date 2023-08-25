@@ -2,9 +2,7 @@ package com.flagsmith.internal
 
 import android.util.Log
 import com.flagsmith.entities.FlagEvent
-import com.flagsmith.entities.IdentityFlagsAndTraits
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.MutableStateFlow
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -12,10 +10,9 @@ import okhttp3.Response
 import okhttp3.sse.EventSource
 import okhttp3.sse.EventSourceListener
 import okhttp3.sse.EventSources
-import java.lang.reflect.Type
 import java.util.concurrent.TimeUnit
 
-class FlagsmithEventService constructor(
+internal class FlagsmithEventService constructor(
     private val eventSourceUrl: String?,
     private val environmentKey: String,
     private val updates: (Result<FlagEvent>) -> Unit

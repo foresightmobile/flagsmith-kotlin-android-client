@@ -1,6 +1,6 @@
 package com.flagsmith.internal
 
 ///
-interface FlagsmithEventTimeTracker {
+internal interface FlagsmithEventTimeTracker {
     var lastSeenAt: Double
 }
