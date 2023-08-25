@@ -106,7 +106,8 @@ class RealTimeUpdatesIntegrationTests : FlagsmithEventTimeTracker {
             .thenReturn(intArrayOf(1, 2, 3))
     }
 
-    @Test(timeout = 10000) // Update after 5 secs, should be done in 10 seconds or fail
+    /// Update after 5 secs, should be done in 10 seconds or fail
+    @Test(timeout = 10000)
     fun testGettingFlagsWithRealtimeUpdatesAfterPuttingNewValue() = runBlocking {
         // Get the current value
         val currentFlagValueDouble =
@@ -118,6 +119,34 @@ class RealTimeUpdatesIntegrationTests : FlagsmithEventTimeTracker {
         CoroutineScope(Dispatchers.IO).launch {
             // Wait 5 seconds before updating the value
             delay(5000)
+
+            val response = retrofitService
+                .setFeatureStates(authToken, featureStateId, environmentKey!!, FeatureStatePutBody(true, currentFlagValue.inc()))
+                .execute()
+            Assert.assertTrue(response.isSuccessful)
+        }
+
+        var newUpdatedFeatureValue: Double?
+        do {
+            newUpdatedFeatureValue =
+                flagsmith.getValueForFeatureSync(featureId).getOrThrow() as Double?
+        } while (newUpdatedFeatureValue!! == currentFlagValueDouble)
+    }
+
+    // Update after 65 secs to ensure we've done a reconnect, should be done in 80 seconds or fail
+    @Test(timeout = 80000)
+    fun testGettingFlagsWithRealtimeUpdatesAfterPuttingNewValueAndReconnect() = runBlocking {
+        // Get the current value
+        val currentFlagValueDouble =
+            flagsmith.getValueForFeatureSync(featureId).getOrThrow() as Double?
+        Assert.assertNotNull(currentFlagValueDouble)
+        val currentFlagValue: Int = currentFlagValueDouble!!.toInt()
+
+        // After 40 seconds try to update the value using the retrofit service
+        CoroutineScope(Dispatchers.IO).launch {
+            // Wait 65 seconds before updating the value
+            // By this time the realtime service will have timed out (30 sec) and reconnected
+            delay(65000)
 
             val response = retrofitService
                 .setFeatureStates(authToken, featureStateId, environmentKey!!, FeatureStatePutBody(true, currentFlagValue.inc()))
